@@ -20,6 +20,7 @@ class ExcelEditor:
     def load_workbook(self):
         """Load the workbook from the specified file path."""
         try:
+            
             self.workbook = load_workbook(self.file_path)
             return "ឯកសារបានបញ្ចូលរួចរាល់"
         except Exception as e:
@@ -56,9 +57,6 @@ class ExcelEditor:
         
         if error_cells:
             return f"កំហុសរូបមន្តត្រូវបានរកឃើញនៅក្នុង:\n" + "\n".join(error_cells)
-        # else:
-        #     return "មិនមានកំហុសរូបមន្តនៅក្នុងជួរ A1:FI596។"
-
 
     def count_rows_until_condition(self, wss, start_row, column, condition):
         """
@@ -419,19 +417,24 @@ class ExcelEditor:
             flattened_entries = [item for sublist in invalid_entries for item in sublist]
             return f"********ការផ្ទៀតផ្ទាត់នៅក្នុងបំណែងចែកភារកិច្ចមានបញ្ហា********** '{ws}':\n" + "\n".join(map(str, flattened_entries))
     
-    def update_cell(self, ws, cell, value):
+    def update_cell(self, wss, cell, value):
         """Update a specific cell with a new value."""
-        # update_check = []
-
-        ws = ws
+        update_check = []
+        ws = wss
         ws[cell] = f"{value}"
 
-        # if update_check:
-        #     return f"**Sheet រកពុំឃើញ '{sheet_name}':\n" + "\n".join(update_check)
+        if update_check:
+            return f"**Sheet រកពុំឃើញ '{ws}':\n" + "\n".join(update_check)
 
     def process_sheets(self):
         """Process all sheets starting with 'S' 
         and within the numeric range."""
+        
+        cell_edit = {
+            "AW12": '=COUNTIF(X50:X303,"<=40")+COUNTIF(AA50:AA303,"<=40")+COUNTIF(AD50:AD303,"<=40")+COUNTIF(AG50:AG303,"<=40")',
+            "AW14": '=COUNTIF(X50:X303,">=50")+COUNTIF(AA50:AA303,">=50")+COUNTIF(AD50:AD303,">=50")+COUNTIF(AG50:AG303,">=50")',
+        }
+
         
         results = []
         for sheet in self.workbook.sheetnames:
@@ -564,8 +567,16 @@ class ExcelEditor:
                             if contract_message:
                                 results.append(contract_message)
                             results.append(self.validate_levels(ws, count, 351, "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
+                    # Update the cell with the new value
+                    for Key in cell_edit.keys():
+                        for result in [
+                            self.update_cell(ws, Key, cell_edit[Key])
+                        ]:
+                            if result:  # Only append non-None results
+                                results.append(result)
                 else:
                     results.append(f"គ្មានទិន្នន័យនៅក្នុង: {sheet}")
+                
             else:
                 results.append(f"មិនមែនជា Sheet សាលារំលង: {sheet}")
 
@@ -579,6 +590,10 @@ class ExcelEditor:
             return "កិច្ចការបានរក្សាទុករួចរាល់។"
         except Exception as e:
             return f"មានបញ្ហាក្នុងការរក្សារទុក ឬ Excel កំពុងបើក: {e}"
+    def close_workbook(self):
+        """Close the workbook."""
+        if self.workbook:
+            self.workbook.close()
 
 
 class ModernExcelApp:
@@ -706,6 +721,7 @@ class ModernExcelApp:
                              padding=5)
         status_bar.pack(fill=tk.X, pady=(10, 0))
 
+
     def select_file(self):
         file_path = filedialog.askopenfilename(
             title="ជ្រើសរើសឯកសារ Excel",
@@ -733,23 +749,28 @@ class ModernExcelApp:
         if not self.editor:
             messagebox.showerror("កំហុស", "សូមជ្រើសរើសឯកសារជាមុនសិន")
             return
-        
-        # Update status
-        self.status_var.set("កំពុងដំណើរការ...")
-        self.root.update()
-        
-        # Process the file
-        results = self.editor.process_sheets()
-        save_message = self.editor.save_workbook()
-        
-        # Display results
-        self.output_area.delete("1.0", tk.END)
-        self.output_area.insert(tk.END, results)
-        self.output_area.insert(tk.END, f"\n\n{save_message}")
-        
-        # Update status
-        self.status_var.set("ការដំណើរការបានបញ្ចប់")
-
+        try:
+            # Update status
+            self.status_var.set("កំពុងដំណើរការ...")
+            self.root.update()
+            
+            # Process the file
+            results = self.editor.process_sheets()
+            save_message = self.editor.save_workbook()
+            
+            
+            # Display results
+            self.output_area.delete("1.0", tk.END)
+            self.output_area.insert(tk.END, results)
+            self.output_area.insert(tk.END, f"\n\n{save_message}")
+            
+            # Update status
+            self.status_var.set("ការដំណើរការបានបញ្ចប់")
+        except Exception as e:
+            messagebox.showerror("កំហុស", f"មានបញ្ហាក្នុងការដំណើរការ: {e}")
+        finally:
+            self.editor.close_workbook()
+            # self.process_button.config(state=tk.DISABLED)
 # Run the Application
 if __name__ == "__main__":
     root = ThemedTk(theme="arc")  # You can try different themes like "arc", "equilux", "breeze"
