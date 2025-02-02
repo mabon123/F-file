@@ -6,79 +6,9 @@ from openpyxl.utils import get_column_letter
 import warnings
 from ttkthemes import ThemedTk
 import os
-import threading
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Suppress warnings for unsupported extensions
 warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl")
-
-
-
-class SheetRangeDialog:
-    def __init__(self, parent):
-        self.dialog = tk.Toplevel(parent)
-        self.dialog.title("ជ្រើសរើសជួរឯកសារ")
-        self.dialog.geometry("400x200")
-        self.dialog.transient(parent)
-        self.dialog.grab_set()
-        
-        # Configure font
-        self.khmer_font = ("Khmer OS Siemreap", 11)
-        
-        # Create and pack widgets
-        ttk.Label(self.dialog, 
-                 text="សូមបញ្ចូលលេខចាប់ពី S1 ដល់ S?",
-                 font=self.khmer_font).pack(pady=20)
-        
-        # Range input frame
-        range_frame = ttk.Frame(self.dialog)
-        range_frame.pack(pady=10)
-        
-        ttk.Label(range_frame, text="S", font=self.khmer_font).pack(side=tk.LEFT)
-        self.start_var = tk.StringVar(value="1")
-        self.end_var = tk.StringVar(value="")
-        
-        self.start_entry = ttk.Entry(range_frame, width=5, textvariable=self.start_var)
-        self.start_entry.pack(side=tk.LEFT, padx=5)
-        
-        ttk.Label(range_frame, text="ដល់ S", font=self.khmer_font).pack(side=tk.LEFT)
-        
-        self.end_entry = ttk.Entry(range_frame, width=5, textvariable=self.end_var)
-        self.end_entry.pack(side=tk.LEFT, padx=5)
-        
-        # Buttons
-        button_frame = ttk.Frame(self.dialog)
-        button_frame.pack(pady=20)
-        
-        ttk.Button(button_frame, 
-                  text="យល់ព្រម",
-                  command=self.confirm,
-                  style="Primary.TButton").pack(side=tk.LEFT, padx=10)
-        
-        ttk.Button(button_frame,
-                  text="បោះបង់",
-                  command=self.cancel,
-                  style="Primary.TButton").pack(side=tk.LEFT)
-        
-        self.result = None
-        
-    def confirm(self):
-        try:
-            start = int(self.start_var.get())
-            end = int(self.end_var.get()) if self.end_var.get() else start
-            
-            if start < 1 or end < 1:
-                raise ValueError("លេខត្រូវតែធំជាង 0")
-            if end < start:
-                raise ValueError("លេខចុងក្រោយត្រូវតែធំជាង ឬស្មើនឹងលេខដំបូង")
-                
-            self.result = (start, end)
-            self.dialog.destroy()
-        except ValueError as e:
-            messagebox.showerror("កំហុស", str(e))
-    
-    def cancel(self):
-        self.dialog.destroy()
 
 class ExcelEditor:
 
@@ -90,28 +20,54 @@ class ExcelEditor:
     def load_workbook(self):
         """Load the workbook from the specified file path."""
         try:
-            self.workbook = load_workbook(self.file_path,read_only=False, data_only=True)
+            self.workbook = load_workbook(self.file_path)
             return "ឯកសារបានបញ្ចូលរួចរាល់"
         except Exception as e:
             return f"Error loading workbook: {e}"
         
-    def check_formula_errors(self, ws):
+        
+    # def check_formula_errors(self, sheet_name):
+    #     """
+    #     Check for formula errors in the specified sheet.
+    #     Returns a list of cells containing errors.
+    #     """
+    #     if sheet_name not in self.workbook.sheetnames:
+    #         return f"Sheet '{sheet_name}' រកមិនឃើញ."
+        
+    #     ws = self.workbook[sheet_name]
+    #     error_cells = []
+    #     error_values = ['#REF!', '#VALUE!', '#NAME?', '#DIV/0!', '#NULL!', '#NUM!', '#N/A']
+        
+    #     # Iterate through all cells in the sheet
+    #     for row in range(1, ws.max_row + 1):
+    #         for col in range(1, ws.max_column + 1):
+    #             cell = ws.cell(row=row, column=col)
+    #             # Check if cell value is an error
+    #             if isinstance(cell.value, str) and any(error in cell.value for error in error_values):
+    #                 col_letter = get_column_letter(col)
+    #                 error_cells.append(f"Cell {col_letter}{row}")
+    #                 # Highlight error cells in red
+    #                 cell.fill = PatternFill(start_color="FF0000", end_color="FF0000", fill_type="solid")
+        
+    #     return error_cells
+
+    def check_formula_errors(self, sheet_name):
         """
-        Check for formula errors in the specified sheet.
+        Check for formula errors in the range A1:FI596.
         Returns a list of cells containing errors.
         """
-        # if sheet_name not in self.workbook.sheetnames:
-        #     return f"Sheet '{sheet_name}' រកមិនឃើញ."
+        if sheet_name not in self.workbook.sheetnames:
+            return f"Sheet '{sheet_name}' រកមិនឃើញ."
         
-        ws = ws
+        ws = self.workbook[sheet_name]
         error_cells = []
         error_values = ['#REF!', '#VALUE!', '#NAME?', '#DIV/0!', '#NULL!', '#NUM!', '#N/A']
         
         # Define the range to check (A1:FI596)
         start_row = 1
-        end_row = 389
+        end_row = 596
         start_col = 1  # Column A
-        end_col = 86  # Column FI (177th column)
+        end_col = 177  # Column FI (177th column)
         
         # Iterate through the range A1:FI596
         for row in range(start_row, end_row + 1):
@@ -129,16 +85,15 @@ class ExcelEditor:
         # else:
         #     return "មិនមានកំហុសរូបមន្តនៅក្នុងជួរ A1:FI596។"
 
-
-    def count_rows_until_condition(self, wss, start_row, column, condition):
+    def count_rows_until_condition(self, sheet_name, start_row, column, condition):
         """
         Count rows from a starting row until a condition is met in the specified column.
         Returns the count and whether the condition was met.
         """
-        # if sheet_name not in self.workbook.sheetnames:
-        #     return f"**Sheet '{sheet_name}' រកមិនឃើញ.", 0, False
+        if sheet_name not in self.workbook.sheetnames:
+            return f"**Sheet '{sheet_name}' រកមិនឃើញ.", 0, False
 
-        ws = wss
+        ws = self.workbook[sheet_name]
         count = 0
 
         for row_num in range(start_row, ws.max_row + 1):
@@ -147,51 +102,25 @@ class ExcelEditor:
             if isinstance(cell_value, str) and cell_value.startswith(condition):
                 return "", count, True
 
-        return f"មិនបានជួបលក់ខណ្ឌចំណុច {condition} '{ws}'.", count, False
+        return f"មិនបានជួបលក់ខណ្ឌចំណុច {condition} '{sheet_name}'.", count, False
 
     def check_row(self, sheet, start_row, column, condition, num_row, name_blog_row):
         count_message, count, condition_met = self.count_rows_until_condition(sheet, start_row, column, condition)
         if count_message:
-            return count_message,0 # Return the error message if there is one
+            return count_message  # Return the error message if there is one
 
         if condition_met and count != num_row:
             if count < num_row:
                 result = num_row-count
-                return f"**Sheet '{sheet}' បានលុប Row ចំនួន {result} នៅត្រងចំណុច '{name_blog_row}'.",result
+                return f"**Sheet '{sheet}' បានលុប Row ចំនួន {num_row - count} នៅត្រងចំណុច '{name_blog_row}'.",result
             elif count > num_row:
                 result = num_row-count
-                return f"**Sheet '{sheet}' បានបន្ថែម Row ចំនួន {abs(result)} នៅត្រងចំណុច '{name_blog_row}'.",result
+                return f"**Sheet '{sheet}' បានបន្ថែម Row ចំនួន {count - num_row} នៅត្រងចំណុច '{name_blog_row}'.",result
 
         # Return None if the row count is correct and there's no action needed
         return None,0
-    
-    # Check Validated Grade
-    def validate_grade(self,grade_value, student_value,note):
-        grade = {
-            "ទាប",
-            "មធ្យម",
-            "ខ្ពស់",
-            "ចម្រុះ",
-            "ទី១",
-            "ទី២",
-            "ទី៣",
-            "ទី៤",
-            "ទី៥",
-            "ទី៦"
-        }
-        if grade_value in grade:
-            if student_value is None or student_value <=0 or not isinstance(student_value, (int, float)):
-                return f"**សូមបញ្ចូលចំនួនសិស្សឱ្យបានត្រឹមត្រូវ: ទិន្នន័យ '{grade_value}' មិនត្រឹមត្រូវ ក្នុង {note}", 0,student_value
-        elif grade_value is not None:
-            if student_value is None or student_value <=0 or not isinstance(student_value, (int, float)):
-                return f"**សូមបញ្ចូលថ្នាក់រៀន និងចំនួនសិស្សឱ្យបានត្រឹមត្រូវ: ទិន្នន័យ '{grade_value} | {student_value}' មិនត្រឹមត្រូវ ក្នុង {note}", grade_value,student_value
-            return f"**សូមបញ្ចូលថ្នាក់រៀនឱ្យបានត្រឹមត្រូវ: ទិន្នន័យ '{grade_value}' គ្មានចំនួនសិស្ស", grade_value,0
-        elif grade_value is None:
-            if student_value is not None:
-                return f"**សូមបញ្ចូលថ្នាក់រៀនអោយបានត្រឹមត្រូវ: គ្មានទិន្នន័យថ្នាក់រៀន ក្នុង {note}", grade_value,student_value
-        return None, 0, 0
-            
-    def validate_levels(self, wss, start_row, end_row, level_col, salary_col, certificate_col, day_col, month_col, year_col, gender_col, position_col, grade_col_1, student_col_1, grade_col_2, student_col_2,grade_col_3, student_col_3,grade_col_4, student_col_4, subject_1_col,add_teach_col, name_blog_row):
+
+    def validate_levels(self, sheet_name, start_row, end_row, level_col, salary_col, certificate_col, day_col, month_col, year_col, gender_col, position_col, add_position_col, grade_col, student_col, subject_1_col, name_blog_row):
         """
         Validate that values in level_col (e.g., 'M') belong to level_salary_a
         and their corresponding values in salary_col (e.g., 'P') exist in the level's set.
@@ -199,7 +128,7 @@ class ExcelEditor:
         """
         # Define a red fill pattern
         red_fill = PatternFill(start_color="FF0000", end_color="FF0000", fill_type="solid")
-        # Define the valid values for each column
+
         level_salary_a = {
             "ឧត្តម": {
                 "ក.3.1", "ក.3.2", "ក.3.3", "ក.3.4",
@@ -223,16 +152,8 @@ class ExcelEditor:
                 "គ.5", "គ.6", "គ.7", "គ.8",
                 "គ.9", "គ.10",
             },
-            
+        }
 
-        }
-        # Add Teacher
-        add_teacher = {
-            "កិច្ចសន្យា",
-            "គ្រូខ្ចី",
-            "មន្ត្រីកិច្ចសន្យា",
-        }
-        # Add Certificate
         certificate = {
             "បណ្ឌិត",
             "អនុបណ្ឌិត",
@@ -241,12 +162,12 @@ class ExcelEditor:
             "មបភ",
             "ក្រោម មបភ"
         }
-        # Add Gander
+
         gander = {
             "ប្រុស",
             "ស្រី"
         }
-        # Add Position
+
         position = {
             "នាយក",
             "នាយករង",
@@ -254,12 +175,9 @@ class ExcelEditor:
             "បណ្ណារក្ស",
             "បេឡា",
             "គណនេយ្យ",
-            "រោងជាង",
             "ទទួលបន្ទុកយុវជន",
             "បរិវច្ឆការី ",
             "ឆ្មាំ",
-            "បង្រៀនអង់គ្លេស",
-            "បង្រៀនសិល្បៈ",
             "បម្រើការនៅអង្កការ",
             "បន្តការសិក្សា",
             "កំពុងស្នើលុបឈ្មោះ",
@@ -271,7 +189,25 @@ class ExcelEditor:
             "លំហែមាតុភាព",
             "បង្រៀន",
         }
-        # Add Subject
+
+        add_position = {
+            "បន្ទុកថ្នាក់",
+            "ប្រធានក្រុមបច្ចេកទេស",
+            "ប្រ.ក្រុមប.ទ+បន្ទុកថ្នាក់",
+            "បង្រៀន",
+        }
+
+        grade = {
+            "ទី៧",
+            "ទី៨",
+            "ទី៩",
+            "ទី១០",
+            "ទី១១ វិ.",
+            "ទី១១ ស.",
+            "ទី១២ វិ.",
+            "ទី១២ ស.",
+        }
+
         subject_1 = {
             "ភាសាខ្មែរ",
             "គណិតវិទ្យា",
@@ -300,83 +236,41 @@ class ExcelEditor:
             "មេកានិច",
             "ភាសារុស្សី",
         }
-        # Add Teacher
-        add_teach = {
-            "២វេន",
-            "គួប២កម្រិត",
-            "គួប៣កម្រិត",
-            "២វេនគួប២កម្រិត",
-            "២វេនគួប៣កម្រិត",
-        }    
 
+        if sheet_name not in self.workbook.sheetnames:
+            return f"Sheet '{sheet_name}' not found."
 
-        ws = wss
+        ws = self.workbook[sheet_name]
         invalid_entries = []
 
         for row_num in range(start_row, end_row + 1):
-            #level value
             level_value = ws[f"{level_col}{row_num}"].value
-            #salary value
             salary_value = ws[f"{salary_col}{row_num}"].value
-            #certificate value
             certificate_value = ws[f"{certificate_col}{row_num}"].value
-            #day value
             day_value = ws[f"{day_col}{row_num}"].value
-            #month value
             month_value = ws[f"{month_col}{row_num}"].value
-            #year value
             year_value = ws[f"{year_col}{row_num}"].value
-            #gander value
             gander_value = ws[f"{gender_col}{row_num}"].value
-            #prosition value
             position_value = ws[f"{position_col}{row_num}"].value
-            ## Grade 1
-            grade_value_1 = ws[f"{grade_col_1}{row_num}"].value
-            student_value_1 = ws[f"{student_col_1}{row_num}"].value
-            ## Grade 2
-            grade_value_2 = ws[f"{grade_col_2}{row_num}"].value
-            student_value_2 = ws[f"{student_col_2}{row_num}"].value
-            ## Grade 3
-            grade_value_3 = ws[f"{grade_col_3}{row_num}"].value
-            student_value_3 = ws[f"{student_col_3}{row_num}"].value
-            ## Grade 4
-            grade_value_4 = ws[f"{grade_col_4}{row_num}"].value
-            student_value_4 = ws[f"{student_col_4}{row_num}"].value
-            #subject value
+            add_position_value = ws[f"{add_position_col}{row_num}"].value
+            grade_value = ws[f"{grade_col}{row_num}"].value
+            student_value = ws[f"{student_col}{row_num}"].value
             subject_1_value = ws[f"{subject_1_col}{row_num}"].value
-            #add teacher value
-            add_teach_value = ws[f"{add_teach_col}{row_num}"].value
-            #comment message
+            
             results = []
+
             # Check Level of Teacher
-            if level_value in level_salary_a or gander_value in gander or position_value in position:
-                # Check Salary Level if គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...
-                if name_blog_row == "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...":
-                    if level_value not in add_teacher:
-                        results.append(f"**បញ្ចូលខុសក្របខ័ណ្ឌអោយបានត្រឹមត្រូវ '{level_value}' ក្នុង {name_blog_row}")
-                        ws[f"{level_col}{row_num}"].fill = red_fill  # Highlight level cell in red
-                        if salary_value is not None:
-                            results.append(f"**កាំប្រាក់ពុំត្រឹមត្រូវ '{salary_value}' សម្រាប់ក្របខ័ណ្ឌ '{level_value}' ក្នុង {name_blog_row}")
-                            ws[f"{salary_col}{row_num}"].fill = red_fill  # Highlight salary cell in red
-                            
-                # Check Level of Teacher
-                elif level_value not in level_salary_a:
-                    results.append(f"**បញ្ចូលខុសក្របខ័ណ្ឌអោយបានត្រឹមត្រូវ '{level_value}' ក្នុង {name_blog_row}")
-                    ws[f"{level_col}{row_num}"].fill = red_fill  # Highlight level cell in red
-                    ws[f"{salary_col}{row_num}"].fill = red_fill
-                    
-                # Check Salary Level
-                elif level_value in level_salary_a:
-                    if salary_value not in level_salary_a[level_value]:
-                        results.append(f"**កាំប្រាក់ពុំត្រឹមត្រូវ '{salary_value}' សម្រាប់ក្របខ័ណ្ឌ '{level_value}' ក្នុង {name_blog_row}")
-                        ws[f"{salary_col}{row_num}"].fill = red_fill  # Highlight salary cell in red
-                    elif salary_value is None:
-                        results.append(f"**សូមបញ្ចូលកាំប្រាក់អោយបានត្រឹមត្រូវ {level_value} ក្នុង {name_blog_row}")
-                        ws[f"{salary_col}{row_num}"].fill = red_fill  # Highlight salary cell in red
+            if level_value in level_salary_a:
+                if salary_value not in level_salary_a[level_value]:
+                    results.append(f"* កាំប្រាក់ពុំត្រឹមត្រូវ '{salary_value}' សម្រាប់ក្របខ័ណ្ឌ '{level_value}' ក្នុង {name_blog_row}")
+                    ws[f"{salary_col}{row_num}"].fill = red_fill  # Highlight salary cell in red
+                elif salary_value is None:
+                    results.append(f"* សូមបញ្ចូលកាំប្រាក់អោយបានត្រឹមត្រូវ {level_value} ក្នុង {name_blog_row}")
+                    ws[f"{salary_col}{row_num}"].fill = red_fill  # Highlight salary cell in red
 
                 # Check Certificate
                 if certificate_value not in certificate:
-                    results.append(f"**បញ្ចូលសញ្ញាបត្រពុំត្រឹមត្រូវ {certificate_value} ក្នុង {name_blog_row}")
+                    results.append(f"* បញ្ចូលសញ្ញាបត្រពុំត្រឹមត្រូវ {certificate_value} ក្នុង {name_blog_row}")
                     ws[f"{certificate_col}{row_num}"].fill = red_fill  # Highlight certificate cell in red
 
                 # Try convert and check date of birth
@@ -384,289 +278,240 @@ class ExcelEditor:
                     day_value = int(day_value)
                     month_value = int(month_value)
                     year_value = int(year_value)
+
                     # Check Day of month
                     if day_value is None or not isinstance(day_value, int) or day_value < 1 or day_value > 31:
-                        results.append(f"**បញ្ចូលថ្ងៃទីពុំត្រឹមត្រូវ ឬពុំបានបញ្ចូលក្នុង {name_blog_row}")
+                        results.append(f"* បញ្ចូលថ្ងៃទីពុំត្រឹមត្រូវ ឬពុំបានបញ្ចូលក្នុង {name_blog_row}")
                         ws[f"{day_col}{row_num}"].fill = red_fill  # Highlight day cell in red
+
                     # Check Month of Year
                     if month_value is None or not isinstance(month_value, int) or month_value < 1 or month_value > 12:
-                        results.append(f"**បញ្ចូលខែពុំត្រឹមត្រូវ ឬពុំបានបញ្ចូលក្នុង {name_blog_row}")
+                        results.append(f"* បញ្ចូលខែពុំត្រឹមត្រូវ ឬពុំបានបញ្ចូលក្នុង {name_blog_row}")
                         ws[f"{month_col}{row_num}"].fill = red_fill  # Highlight month cell in red
+
                     # Check Year
                     if year_value is None or not isinstance(year_value, int) or year_value < 1964 or year_value > 2006:
-                        results.append(f"**បញ្ចូលឆ្នាំពុំត្រឹមត្រូវ ឬពុំបានបញ្ចូលក្នុង {year_value} ក្នុង {name_blog_row}")
+                        results.append(f"* បញ្ចូលឆ្នាំពុំត្រឹមត្រូវ ឬពុំបានបញ្ចូលក្នុង {year_value} ក្នុង {name_blog_row}")
                         ws[f"{year_col}{row_num}"].fill = red_fill  # Highlight year cell in red
 
                 except (ValueError, TypeError):
-                    results.append(f"**ថ្ងៃខែឆ្នាំកំណើត '{day_value}'| {month_value} | {year_value} មិនមែនជាលេខសូមបញ្ចូលអោយបានត្រឹមត្រូវ.")
+                    results.append(f"* ថ្ងៃខែឆ្នាំកំណើត '{day_value}'| {month_value} | {year_value} មិនមែនជាលេខសូមបញ្ចូលអោយបានត្រឹមត្រូវ.")
                     ws[f"{day_col}{row_num}"].fill = red_fill  # Highlight day cell in red
                     ws[f"{month_col}{row_num}"].fill = red_fill  # Highlight month cell in red
                     ws[f"{year_col}{row_num}"].fill = red_fill  # Highlight year cell in red
 
                 # Check Gender
                 if gander_value not in gander:
-                    results.append(f"**ភេទមិនត្រឹមត្រូវ ឬពុំបានបញ្ចូល {gander_value} ក្នុង {name_blog_row}")
+                    results.append(f"* ភេទមិនត្រឹមត្រូវ ឬពុំបានបញ្ចូល {gander_value} ក្នុង {name_blog_row}")
                     ws[f"{gender_col}{row_num}"].fill = red_fill  # Highlight gender cell in red
 
                 # Check Position
                 if position_value not in position:
-                    results.append(f"**មុខតំណែងមិនត្រឹមត្រូវ ឬពុំបានបញ្ចូល: {position_value} ក្នុង {name_blog_row}")
+                    results.append(f"* មុខតំណែងមិនត្រឹមត្រូវ ឬពុំបានបញ្ចូល: {position_value} ក្នុង {name_blog_row}")
                     ws[f"{position_col}{row_num}"].fill = red_fill  # Highlight position cell in red
 
-                # Check Grade column 1
-                grade_message, grade_value, student_value = self.validate_grade(grade_value_1, student_value_1, "ចំណុចបង្រៀន")
-                if grade_message is not None:
-                    if grade_value != 0 and student_value != 0:
-                        results.append(f"{grade_message}")
-                        ws[f"{grade_col_1}{row_num}"].fill = red_fill
-                        ws[f"{student_col_1}{row_num}"].fill = red_fill
-                    elif grade_value == 0 and student_value != 0:
-                        results.append(f"{grade_message}")
-                        ws[f"{student_col_1}{row_num}"].fill = red_fill
-                    elif grade_value != 0 and student_value == 0:
-                        results.append(f"{grade_message}")
-                        ws[f"{grade_col_1}{row_num}"].fill = red_fill
-                
-                # Check Grade Column 2
-                grade_message, grade_value, student_value = self.validate_grade(grade_value_2, student_value_2, "ថ្នាក់បង្រៀនបន្ថែម")
-                if grade_message is not None:
-                    if grade_value != 0 and student_value != 0:
-                        results.append(f"{grade_message}")
-                        ws[f"{grade_col_2}{row_num}"].fill = red_fill
-                        ws[f"{student_col_2}{row_num}"].fill = red_fill
-                    elif grade_value == 0 and student_value != 0:
-                        results.append(f"{grade_message}")
-                        ws[f"{student_col_2}{row_num}"].fill = red_fill
-                    elif grade_value != 0 and student_value == 0:
-                        results.append(f"{grade_message}")
-                        ws[f"{grade_col_2}{row_num}"].fill = red_fill    
-                        
-                # Check Grade Column 3
-                grade_message, grade_value, student_value = self.validate_grade(grade_value_3, student_value_3,"ថ្នាក់បង្រៀនបន្ថែម")
-                if grade_message is not None:
-                    if grade_value != 0 and student_value != 0:
-                        results.append(f"{grade_message}")
-                        ws[f"{grade_col_3}{row_num}"].fill = red_fill
-                        ws[f"{student_col_3}{row_num}"].fill = red_fill
-                    elif grade_value == 0 and student_value != 0:
-                        results.append(f"{grade_message}")
-                        ws[f"{student_col_3}{row_num}"].fill = red_fill
-                    elif grade_value != 0 and student_value == 0:
-                        results.append(f"{grade_message}")
-                        ws[f"{grade_col_3}{row_num}"].fill = red_fill  
-                        
-                # Check Grade Column 4
-                grade_message, grade_value, student_value = self.validate_grade(grade_value_4, student_value_4,"ថ្នាក់បង្រៀនបន្ថែម")
-                if grade_message is not None:
-                    if grade_value != 0 and student_value != 0:
-                        results.append(f"{grade_message}")
-                        ws[f"{grade_col_4}{row_num}"].fill = red_fill
-                        ws[f"{student_col_4}{row_num}"].fill = red_fill
-                    elif grade_value == 0 and student_value != 0:
-                        results.append(f"{grade_message}")
-                        ws[f"{student_col_4}{row_num}"].fill = red_fill
-                    elif grade_value != 0 and student_value == 0:
-                        results.append(f"{grade_message}")
-                        ws[f"{grade_col_4}{row_num}"].fill = red_fill  
-                    
-                # Check Subject if not បឋម and មត្តេយ្យ
-                if name_blog_row != "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...":
-                    if level_value != "បឋម" and level_value != "មត្តេយ្យ":
-                        if subject_1_value not in subject_1:
-                                results.append(f"** សូមបញ្ចូលមុខវិជ្ជាឱ្យបានត្រឹមត្រូវ {subject_1_value} ក្នុងក្របខ័ណ្ឌ {level_value} នៃ {name_blog_row}")
+                # Check Add Position
+                if add_position_value in add_position:
+                    # check if = បន្ទបថ្នាក់ or ប្រ.ក្រុមប.ទ+បន្ទប់ថ្នាក់
+                    if add_position_value == "បន្ទុកថ្នាក់" or add_position_value == "ប្រ.ក្រុមប.ទ+បន្ទុកថ្នាក់":
+                        # Check Grade
+                        if grade_value not in grade:
+                            results.append(f"* មានបញ្ហាចំនួនថ្នាក់ {grade_value} ក្នុង {name_blog_row}")
+                            ws[f"{grade_col}{row_num}"].fill = red_fill  # Highlight grade cell in red
+                        # Check Total Student
+                        if student_value is None or student_value <= 0:
+                            results.append(f"* មានបញ្ហាចំនួនសិស្ស {student_value} ក្នុង {name_blog_row}")
+                            ws[f"{student_col}{row_num}"].fill = red_fill  # Highlight student cell in red
+
+                elif add_position_value is not None:
+                    results.append(f"* ចំណុចភារកិច្ចបន្ថែមមានបញ្ហា '{add_position_value}' ក្នុង {name_blog_row}")
+                    ws[f"{add_position_col}{row_num}"].fill = red_fill  # Highlight add position cell in red
+
+                # Check Subject 1
+                if name_blog_row == "ក.បុគ្គលិកទីចាត់ការ":
+                    if level_value == "បឋម" or level_value == "មត្តេយ្យ":
+                        if add_position_value == "បន្ទុកថ្នាក់" or add_position_value == "បង្រៀន":
+                            if subject_1_value not in subject_1:
+                                results.append(f"* សូមបញ្ចូលមុខវិជ្ជាឱ្យបានត្រឹមត្រូវ {subject_1_value} ក្នុងក្របខ័ណ្ឌ {level_value} នៃ {name_blog_row}")
                                 ws[f"{subject_1_col}{row_num}"].fill = red_fill  # Highlight subject cell in red
-                
-                # Check Add Type Teacher
-                if add_teach_value not in add_teach and add_teach_value is not None:
-                    results.append(f"** សូមបញ្ចូលប្រភេទនៃការបង្រៀនបន្ថែមរបស់គ្រូបង្រៀនឱ្យបានត្រឹមត្រូវ ក្នុង {name_blog_row}")
+                    else:
+                        if subject_1_value not in subject_1:
+                            results.append(f"* សូមបញ្ចូលមុខវិជ្ជាឱ្យបានត្រឹមត្រូវ {subject_1_value} ក្នុងក្របខ័ណ្ឌ {level_value} នៃ {name_blog_row}")
+                            ws[f"{subject_1_col}{row_num}"].fill = red_fill  # Highlight subject cell in red
+                else:
+                    if subject_1_value not in subject_1:
+                        results.append(f"* សូមបញ្ចូលមុខវិជ្ជាឱ្យបានត្រឹមត្រូវ {subject_1_value} ក្នុងក្របខ័ណ្ឌ {level_value} នៃ {name_blog_row}")
+                        ws[f"{subject_1_col}{row_num}"].fill = red_fill  # Highlight subject cell in red
+
+            elif level_value is not None:
+                results.append(f"* បញ្ចូលខុសក្របខ័ណ្ឌអោយបានត្រឹមត្រូវ '{level_value}' ក្នុង {name_blog_row}")
+                ws[f"{level_col}{row_num}"].fill = red_fill  # Highlight level cell in red
                 
             if results:
                 results.insert(0, f"##### សូមពិនិត្យ Row {row_num} : #####")
                 invalid_entries.append(results)
 
         if invalid_entries:
-            # Flatten the list and ensure all entries are strings
             flattened_entries = [item for sublist in invalid_entries for item in sublist]
-            return f"********ការផ្ទៀតផ្ទាត់នៅក្នុងបំណែងចែកភារកិច្ចមានបញ្ហា********** '{ws}':\n" + "\n".join(map(str, flattened_entries))
-    
-    def update_cell(self, ws, cell, value):
+            return f"********ការផ្ទៀតផ្ទាត់នៅក្នុងបំណែងចែកភារកិច្ចមានបញ្ហា '{sheet_name}':\n" + "\n".join(map(str, flattened_entries))
+    def update_cell(self, sheet_name, cell, value):
         """Update a specific cell with a new value."""
-        # update_check = []
+        update_check = []
+        if sheet_name in self.workbook.sheetnames:
+            ws = self.workbook[sheet_name]
+            ws[cell] = f"{value}"
+        else:
+            update_check.append(f"**Sheet '{sheet_name}' រកមិនឃើញ.")
 
-        ws = ws
-        ws[cell] = f"{value}"
+        if update_check:
+            return f"**Sheet រកពុំឃើញ '{sheet_name}':\n" + "\n".join(update_check)
 
-        # if update_check:
-        #     return f"**Sheet រកពុំឃើញ '{sheet_name}':\n" + "\n".join(update_check)
-
-    def process_sheet(self,start_num=None, end_num=None):
+    def process_sheets(self):
         """Process all sheets starting with 'S' 
         and within the numeric range."""
-        
+        cell_var = {
+            "DM6": '=COUNTIFS($BB$58:$BB$177,$DM$3,$AC$58:$AC$177,DJ6)+COUNTIFS($BB$179:$BB$328,$DM$3,$AC$179:$AC$328,DJ6)+COUNTIFS($BB$330:$BB$479,$DM$3,$AC$330:$AC$479,DJ6)',
+            "DM7": '=COUNTIFS($BB$58:$BB$177,$DM$3,$AC$58:$AC$177,DJ7)+COUNTIFS($BB$179:$BB$328,$DM$3,$AC$179:$AC$328,DJ7)+COUNTIFS($BB$330:$BB$479,$DM$3,$AC$330:$AC$479,DJ7)',
+            "DM8": '=COUNTIFS($BB$58:$BB$177,$DM$3,$AC$58:$AC$177,DJ8)+COUNTIFS($BB$179:$BB$328,$DM$3,$AC$179:$AC$328,DJ8)+COUNTIFS($BB$330:$BB$479,$DM$3,$AC$330:$AC$479,DJ8)',
+            "DM9": '=COUNTIFS($BB$58:$BB$177,$DM$3,$AC$58:$AC$177,DJ9)+COUNTIFS($BB$179:$BB$328,$DM$3,$AC$179:$AC$328,DJ9)+COUNTIFS($BB$330:$BB$479,$DM$3,$AC$330:$AC$479,DJ9)',
+            "DK17": '=SUM(CY16,DA16,DC16,DE16,DG16,DI16)',
+            "DK18": '=SUM(CY17,DA17,DC17,DE17,DG17,DI17)',
+            "DK19": '=SUM(CY18,DA18,DC18,DE18,DG18,DI18)',
+            "DK20": '=SUM(CY19,DA19,DC19,DE19,DG19,DI19)',
+            "DK21": '=SUM(CY20,DA20,DC20,DE20,DG20,DI20)',
+            "DK22": '=SUM(CY21,DA21,DC21,DE21,DG21,DI21)',
+            "DK23": '=SUM(CY22,DA22,DC22,DE22,DG22,DI22)',
+            "DK24": '=SUM(CY23,DA23,DC23,DE23,DG23,DI23)',
+            "DK26": '=SUM(CY25,DA25,DC25,DE25,DG25,DI25)',
+            "J46": '=IF(AY2="",0,IF(AY2="ធម្មតា",0,(AA41-AA38)))',
+            "J47": '=IF($AY$2="លំបាក",(AA41-DK20-DK21)*80000,IF($AY$2="ដាច់ស្រយាលប្រភេទ១",(AA41-DK20-DK21)*100000,IF($AY$2="ដាច់ស្រយាលប្រភេទ២",(AA41-DK20-DK21)*120000,IF($AY$2="ធម្មតា",(AA41-DK20-DK21)*0,0))))',
+            "AU58": '=IF(AND(Q58="នាយក",$I$16<5),4,IF(AND(Q58="នាយករង",$I$16<8),4,IF(OR(Q58="លេខាធិការ",Q58="បេឡា",Q58="បណ្ណារក្ស",Q58="គណនេយ្យ",Q58="ទទួលបន្ទុកយុវជន",Q58="បរិវច្ឆការី ",Q58="ឆ្មាំ",Q58="លំហែមាតុភាព",Q58="បន្តការសិក្សា",Q58="មានជំងឺរ៉ាំរ៉ៃ",Q58="ក្រៅក្របខណ្ឌដើម"),0,IF(AND(Q58="នាយក",$I$16>=5),0,IF(AND(Q58="នាយករង",$I$16>=8),0,0)))))',
+            "BN31": '=BN18+BN20+BN21+BN22+BN23+BN24+BN25+BN26+BN27+BN28+BN29',
+            "BX31": '=BX18+BX20+BX21+BX22+BX23+BX24+BX25+BX26+BX27+BX28+BX29'
+        }
         results = []
-        
-        # Create the range of sheet numbers to process
-        if start_num is not None and end_num is not None:
-            sheet_numbers = range(start_num, end_num + 1)
-            sheet_names = [f"S{num}" for num in sheet_numbers]
-        else:
-             # If no range specified, process all S sheets
-            sheet_names = [sheet for sheet in self.workbook.sheetnames 
-                if sheet.startswith('S') and sheet[1:].isdigit()]
-            
         for sheet in self.workbook.sheetnames:
             if sheet.startswith('S') and sheet[1:].isdigit():
-                # if sheet not in self.workbook.sheetnames:
-                #     return f"Sheet '{sheet}' រកមិនឃើញ."
                 results.append(f"ដំណើរការផ្ទៀងផ្ទាត់នៅក្នុង: {sheet}")
-                ws = self.workbook[sheet]
-                
-                error_cells = self.check_formula_errors(ws)
+
+                error_cells = self.check_formula_errors(sheet)
                 if isinstance(error_cells, str):  # If it's an error message
                     results.append(error_cells)
                 elif error_cells:  # If there are error cells
                     results.append("\nរកឃើញកំហុសរូបមន្តក្នុង:")
                     for error in error_cells:
                         results.append(error)
+
                 # Check rows for different categories
-                count = 50
+                count = 58
                 admin_message = None
-                admin_message,result_admin_row = self.check_row(ws, count, "A", "ខ", 101, "ក.បុគ្គលិកទីចាត់ការ")
-                ## Check Admin Row
-                if result_admin_row > 0:
+                result_admin_row = 0
+                result_teacher_high_row = 0
+                result_teacher_low_row = 0
+                result_contract_row = 0
+                admin_message, result_admin_row = self.check_row(sheet, count, "A", "ខ", 121, "ក.បុគ្គលិកទីចាត់ការ")
+                if result_admin_row != 0:
                     results.append(admin_message)
-                    results.append(self.validate_levels(ws, count, (149-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "ក.បុគ្គលិកទីចាត់ការ"))
-                    count =151-result_admin_row
-                    teacher_message,result_teacher_row = self.check_row(ws, count, "A", "គ", 151, "ខ. គ្រូបង្រៀនបឋមសិក្សា")
-                    
-                    ## Check Teacher Row
-                    if result_teacher_row > 0:
-                        results.append(teacher_message)
-                        results.append(self.validate_levels(ws, count, (300-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
-                        count = 302 - result_teacher_row - result_admin_row
-                        contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 51, "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...")
-                        ## Check Contract Row
-                        if contract_message:
-                            results.append(contract_message)
-                        results.append(self.validate_levels(ws, count, (351-result_admin_row-result_teacher_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
-                            
-                    elif result_teacher_row < 0:
-                        results.append(teacher_message)
-                        results.append(self.validate_levels(ws, count, (300-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
-                        count = 302 + abs(result_teacher_row) - result_admin_row
-                        contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 51, "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...")
-                        ## Check Contract Row
-                        if contract_message:
-                            results.append(contract_message)
-                        results.append(self.validate_levels(ws, count, (351-result_admin_row-result_teacher_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
-                            
+                    results.append(self.validate_levels(sheet, 58, (177-result_admin_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "ក.បុគ្គលិកទីចាត់ការ"))
+                    count =179-result_admin_row
+                    teacher_message_high,result_teacher_high_row = self.check_row(sheet, count, "A", "គ", 151, "ខ. គ្រូបង្រៀននៅមធ្យមសិក្សាទុតិយភូមិ")
+                    if result_teacher_high_row != 0:
+                        results.append(teacher_message_high)
+                        results.append(self.validate_levels(sheet, count, (328-result_admin_row-result_teacher_high_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "ខ. គ្រូបង្រៀននៅមធ្យមសិក្សាទុតិយភូមិ"))
+                        count = 330 - result_teacher_high_row - result_admin_row
+                        teacher_message_low,result_teacher_low_row = self.check_row(sheet, count, "A", "ឃ", 151, "គ. គ្រូបង្រៀននៅមធ្យមសិក្សាបឋមភូមិ")
+                        if result_teacher_low_row != 0:
+                            results.append(teacher_message_low)
+                            results.append(self.validate_levels(sheet, count, (479-result_admin_row-result_teacher_high_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "គ. គ្រូបង្រៀននៅមធ្យមសិក្សាបឋមភូមិ"))
+                            count = 481 - result_teacher_low_row - result_teacher_high_row - result_admin_row
+                            contract_message, result_contract_row = self.check_row(sheet, count, "A", "សរុប", 41, "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា")
+                            if contract_message:
+                                results.append(contract_message)
+                            results.append(self.validate_levels(sheet, count, (520-result_admin_row-result_teacher_high_row-result_teacher_low_row-result_contract_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា"))
+                        else:
+                            results.append(self.validate_levels(sheet, count, (479-result_admin_row-result_teacher_high_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "គ. គ្រូបង្រៀននៅមធ្យមសិក្សាបឋមភូមិ"))
+                            count = 481 - result_teacher_high_row - result_admin_row - result_teacher_low_row
+                            contract_message, result_contract_row = self.check_row(sheet, count, "A", "សរុប", 41, "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា")
+                            if contract_message:
+                                results.append(contract_message)
+                            results.append(self.validate_levels(sheet, count, (520-result_admin_row-result_teacher_high_row-result_teacher_low_row-result_contract_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា"))
                     else:
-                        results.append(self.validate_levels(ws, count, (300-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
-                        count = 302-result_admin_row
-                        contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 51, "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...")
-                        ## Check Contract Row
-                        if contract_message:
-                            results.append(contract_message)
-                        results.append(self.validate_levels(ws, count, (351-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
-                            
-                elif result_admin_row < 0:
-                    results.append(admin_message)
-                    results.append(self.validate_levels(ws, count, (149-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "ក.បុគ្គលិកទីចាត់ការ"))
-                    count = 151 + abs(result_admin_row)
-                    teacher_message,result_teacher_row = self.check_row(ws, count, "A", "គ", 151, "ខ. គ្រូបង្រៀនបឋមសិក្សា")
-                    ## Check Teacher Row
-                    if result_teacher_row > 0:
-                        results.append(teacher_message)
-                        results.append(self.validate_levels(ws, count, (300-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
-                        count = 302 - result_teacher_row +abs(result_admin_row)
-                        contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 51, "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...")
-                        ## Check Contract Row
-                        if contract_message:
-                            results.append(contract_message)
-                        results.append(self.validate_levels(ws, count, (351-result_admin_row-result_teacher_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
-                            
-                    elif result_teacher_row < 0:
-                        results.append(teacher_message)
-                        results.append(self.validate_levels(ws, count, (300-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
-                        count = 302 + abs(result_teacher_row) + abs(result_admin_row)
-                        contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 51, "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...")
-                        ## Check Contract Row
-                        if contract_message:
-                            results.append(contract_message)
-                        results.append(self.validate_levels(ws, count, (351-result_admin_row-result_teacher_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
-                            
-                    else:
-                        
-                        results.append(self.validate_levels(ws, count, (300-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC","AD", "AF","AG","O","AL", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
-                        count = 302+result_admin_row
-                        contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 51, "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...")
-                        ## Check Contract Row
-                        if contract_message:
-                            results.append(contract_message)
-                        results.append(self.validate_levels(ws, count, (351-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
-                            
+                        results.append(self.validate_levels(sheet, count, (328-result_admin_row-result_teacher_high_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "ខ. គ្រូបង្រៀននៅមធ្យមសិក្សាទុតិយភូមិ"))
+                        count = 330 - result_teacher_high_row - result_admin_row
+                        teacher_message_low,result_teacher_low_row = self.check_row(sheet, count, "A", "ឃ", 151, "គ. គ្រូបង្រៀននៅមធ្យមសិក្សាបឋមភូមិ")
+                        if result_teacher_low_row != 0:
+                            results.append(teacher_message_low)
+                            results.append(self.validate_levels(sheet, count, (479-result_admin_row-result_teacher_high_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "គ. គ្រូបង្រៀននៅមធ្យមសិក្សាបឋមភូមិ"))
+                            count = 481 - result_teacher_low_row - result_teacher_high_row - result_admin_row
+                            contract_message, result_contract_row = self.check_row(sheet, count, "A", "សរុប", 41, "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា")
+                            if contract_message:
+                                results.append(contract_message)
+                            results.append(self.validate_levels(sheet, count, (520-result_admin_row-result_teacher_high_row-result_teacher_low_row-result_contract_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា"))
+                        else:
+                            results.append(self.validate_levels(sheet, count, (479-result_admin_row-result_teacher_high_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "គ. គ្រូបង្រៀននៅមធ្យមសិក្សាបឋមភូមិ"))
+                            count = 481 - result_teacher_high_row - result_admin_row - result_teacher_low_row
+                            contract_message, result_contract_row = self.check_row(sheet, count, "A", "សរុប", 41, "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា")
+                            if contract_message:
+                                results.append(contract_message)
+                            results.append(self.validate_levels(sheet, count, (520-result_admin_row-result_teacher_high_row-result_teacher_low_row-result_contract_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា"))
                 else:
-                    results.append(self.validate_levels(ws, count, 149, "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "ក.បុគ្គលិកទីចាត់ការ"))
-                    count = 151
-                    teacher_message,result_teacher_row = self.check_row(ws, count, "A", "គ", 151, "ខ. គ្រូបង្រៀនបឋមសិក្សា")
-                    ## Check Teacher Row
-                    if result_teacher_row > 0:
-                        results.append(teacher_message)
-                        results.append(self.validate_levels(ws, count, 300, "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
-                        count = 302 - result_teacher_row
-                        contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 51, "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...")
-                        ## Check Contract Row
-                        if contract_message:
-                            results.append(contract_message)
-                        results.append(self.validate_levels(ws, count, (351-result_teacher_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
-                            
-                    elif result_teacher_row < 0:
-                        count = 302 + abs(result_teacher_row)
-                        contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 51, "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...")
-                        ## Check Contract Row
-                        if contract_message:
-                            results.append(contract_message)
-                        results.append(self.validate_levels(ws, count, (351-result_teacher_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
+                    results.append(self.validate_levels(sheet, 58, (177-result_admin_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "ក.បុគ្គលិកទីចាត់ការ"))
+                    count =179-result_admin_row
+                    teacher_message_high,result_teacher_high_row = self.check_row(sheet, count, "A", "គ", 151, "ខ. គ្រូបង្រៀននៅមធ្យមសិក្សាទុតិយភូមិ")
+                    if result_teacher_high_row != 0:
+                        results.append(teacher_message_high)
+                        results.append(self.validate_levels(sheet, count, (328-result_admin_row-result_teacher_high_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "ខ. គ្រូបង្រៀននៅមធ្យមសិក្សាទុតិយភូមិ"))
+                        count = 330 - result_teacher_high_row - result_admin_row
+                        teacher_message_low,result_teacher_low_row = self.check_row(sheet, count, "A", "ឃ", 151, "គ. គ្រូបង្រៀននៅមធ្យមសិក្សាបឋមភូមិ")
+                        if result_teacher_low_row != 0:
+                            results.append(teacher_message_low)
+                            results.append(self.validate_levels(sheet, count, (479-result_admin_row-result_teacher_high_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "គ. គ្រូបង្រៀននៅមធ្យមសិក្សាបឋមភូមិ"))
+                            count = 481 - result_teacher_low_row - result_teacher_high_row - result_admin_row
+                            contract_message, result_contract_row = self.check_row(sheet, count, "A", "សរុប", 41, "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា")
+                            if contract_message:
+                                results.append(contract_message)
+                            results.append(self.validate_levels(sheet, count, (520-result_admin_row-result_teacher_high_row-result_teacher_low_row-result_contract_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា"))
+                        else:
+                            results.append(self.validate_levels(sheet, count, (479-result_admin_row-result_teacher_high_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "គ. គ្រូបង្រៀននៅមធ្យមសិក្សាបឋមភូមិ"))
+                            count = 481 - result_teacher_high_row - result_admin_row - result_teacher_low_row
+                            contract_message, result_contract_row = self.check_row(sheet, count, "A", "សរុប", 41, "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា")
+                            if contract_message:
+                                results.append(contract_message)
+                            results.append(self.validate_levels(sheet, count, (520-result_admin_row-result_teacher_high_row-result_teacher_low_row-result_contract_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា"))
                     else:
-                        results.append(self.validate_levels(ws, count, 300, "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
-                        count = 302
-                        contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 51, "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...")
-                        ## Check Contract Row
-                        if contract_message:
-                            results.append(contract_message)
-                        results.append(self.validate_levels(ws, count, 351, "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
+                        results.append(self.validate_levels(sheet, count, (328-result_admin_row-result_teacher_high_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "ខ. គ្រូបង្រៀននៅមធ្យមសិក្សាទុតិយភូមិ"))
+                        count = 330 - result_teacher_high_row - result_admin_row
+                        teacher_message_low,result_teacher_low_row = self.check_row(sheet, count, "A", "ឃ", 151, "គ. គ្រូបង្រៀននៅមធ្យមសិក្សាបឋមភូមិ")
+                        if result_teacher_low_row != 0:
+                            results.append(teacher_message_low)
+                            results.append(self.validate_levels(sheet, count, (479-result_admin_row-result_teacher_high_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "គ. គ្រូបង្រៀននៅមធ្យមសិក្សាបឋមភូមិ"))
+                            count = 481 - result_teacher_low_row - result_teacher_high_row - result_admin_row
+                            contract_message, result_contract_row = self.check_row(sheet, count, "A", "សរុប", 41, "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា")
+                            if contract_message:
+                                results.append(contract_message)
+                            results.append(self.validate_levels(sheet, count, (520-result_admin_row-result_teacher_high_row-result_teacher_low_row-result_contract_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា"))
+                        else:
+                            results.append(self.validate_levels(sheet, count, (479-result_admin_row-result_teacher_high_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "គ. គ្រូបង្រៀននៅមធ្យមសិក្សាបឋមភូមិ"))
+                            count = 481 - result_teacher_high_row - result_admin_row - result_teacher_low_row
+                            contract_message, result_contract_row = self.check_row(sheet, count, "A", "សរុប", 41, "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា")
+                            if contract_message:
+                                results.append(contract_message)
+                            results.append(self.validate_levels(sheet, count, (520-result_admin_row-result_teacher_high_row-result_teacher_low_row-result_contract_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា"))
+                
+                ### Update Cell That
+
+                for Key in cell_var.keys():
+                    for result in [
+                        self.update_cell(sheet, Key, cell_var[Key])
+                    ]:
+                        if result:  # Only append non-None results
+                            results.append(result)
+
             else:
                 results.append(f"មិនមែនជា Sheet សាលារំលង: {sheet}")
 
         # Filter out None values before joining
-        return results
-
-    
-    def process_sheets(self,start_num=None, end_num=None):
-        """Process all sheets starting with 'S' 
-        and within the numeric range."""
-        
-        results = []
-        
-        # Create the range of sheet numbers to process
-        if start_num is not None and end_num is not None:
-            sheet_numbers = range(start_num, end_num + 1)
-            sheet_names = [f"S{num}" for num in sheet_numbers]
-        else:
-             # If no range specified, process all S sheets
-            sheet_names = [sheet for sheet in self.workbook.sheetnames 
-                if sheet.startswith('S') and sheet[1:].isdigit()]
-            
-        with ThreadPoolExecutor(max_workers=min(len(sheet_names), 4)) as executor:
-            future_to_sheet = {executor.submit(self.process_sheet, sheet_name): sheet_name 
-                for sheet_name in sheet_names}
-        
-            for future in as_completed(future_to_sheet):
-                sheet_results = future.result()
-                results.extend(sheet_results)
-        # Filter out None values before joining
         return "\n".join(filter(None, results))
-
 
     def save_workbook(self):
         """Save the workbook back to the file."""
@@ -732,7 +577,7 @@ class ModernExcelApp:
         header_frame.pack(fill=tk.X, pady=(0, 20))
         
         header_label = ttk.Label(header_frame,
-                                text="Script ត្រួតពិនិត្យទិន្នន័យគ្រូបង្រៀន F1 F2 បឋម និងមត្តេយ្យ",
+                                text="Script ត្រួតពិនិត្យទិន្នន័យគ្រូបង្រៀន F1 F2 នៅមធ្យមសិក្សាបឋមភូមិ និងទុតិយភូមិ",
                                 style="Header.TLabel",
                                 font=("Khmer OS Siemreap", 16, "bold"))
         header_label.pack()
@@ -830,30 +675,24 @@ class ModernExcelApp:
             messagebox.showerror("កំហុស", "សូមជ្រើសរើសឯកសារជាមុនសិន")
             return
         
-        # Show the sheet range dialog
-        dialog = SheetRangeDialog(self.root)
-        self.root.wait_window(dialog.dialog)
+        # Update status
+        self.status_var.set("កំពុងដំណើរការ...")
+        self.root.update()
         
-        if dialog.result:
-            start_num, end_num = dialog.result
-            # Update status
-            self.status_var.set("កំពុងដំណើរការ...")
-            self.root.update()
-            
-            # Process the file with specified range
-            results = self.editor.process_sheets(start_num, end_num)
-            save_message = self.editor.save_workbook()
-            
-            # Display results
-            self.output_area.delete("1.0", tk.END)
-            self.output_area.insert(tk.END, results)
-            self.output_area.insert(tk.END, f"\n\n{save_message}")
-            
-            # Update status
-            self.status_var.set("ការដំណើរការបានបញ្ចប់")
+        # Process the file
+        results = self.editor.process_sheets()
+        save_message = self.editor.save_workbook()
+        
+        # Display results
+        self.output_area.delete("1.0", tk.END)
+        self.output_area.insert(tk.END, results)
+        self.output_area.insert(tk.END, f"\n\n{save_message}")
+        
+        # Update status
+        self.status_var.set("ការដំណើរការបានបញ្ចប់")
+
 # Run the Application
 if __name__ == "__main__":
     root = ThemedTk(theme="arc")  # You can try different themes like "arc", "equilux", "breeze"
     app = ModernExcelApp(root)
     root.mainloop()
-    
