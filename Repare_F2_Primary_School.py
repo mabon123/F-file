@@ -188,6 +188,7 @@ class ExcelEditor:
             "ឆ្មាំ",
             "បង្រៀនអង់គ្លេស",
             "បង្រៀនសិល្បៈ",
+            "បង្រៀនមុខវិជ្ជាបន្ថែម",
             "បម្រើការនៅអង្កការ",
             "បន្តការសិក្សា",
             "កំពុងស្នើលុបឈ្មោះ",
@@ -433,9 +434,10 @@ class ExcelEditor:
         cell_edit = {
             "AW12": '=COUNTIF(X50:X303,"<=40")+COUNTIF(AA50:AA303,"<=40")+COUNTIF(AD50:AD303,"<=40")+COUNTIF(AG50:AG303,"<=40")',
             "AW14": '=COUNTIF(X50:X303,">=50")+COUNTIF(AA50:AA303,">=50")+COUNTIF(AD50:AD303,">=50")+COUNTIF(AG50:AG303,">=50")',
+            "W41": '=IF(OR(AK3="",AK3="ធម្មតា"),0,(V19-(BY17+BY18)))',
+            "W42": '=IF(AK3="លំបាក",(V19-(BY17+BY18))*80000,IF(AK3="ដាច់ស្រយាលប្រភេទ១",(V19-(BY17+BY18))*100000,IF(AK3="ដាច់ស្រយាលប្រភេទ២",(V19-(BY17+BY18))*120000,IF(AK3="ធម្មតា",(V19-(BY17+BY18))*0,0))))'
         }
 
-        
         results = []
         for sheet in self.workbook.sheetnames:
             if sheet.startswith('S') and sheet[1:].isdigit():
