@@ -1,0 +1,166 @@
+=COUNTIFS(Raw_data!$P:$P,"ទី៤",Raw_data!$AF:$AF,$B9,Raw_data!$I:$I, "ស្រី")
++COUNTIFS(Raw_data!$P:$P, "<>ទី៥",Raw_data!$P:$P, "<>ទី៦", Raw_data!$S:$S, "ទី៤", Raw_data!$AF:$AF, $B9,Raw_data!$I:$I, "ស្រី")
++COUNTIFS(Raw_data!$P:$P, "<>ទី៥",Raw_data!$P:$P, "<>ទី៦",Raw_data!$S:$S, "<>ទី៥",Raw_data!$S:$S,"<>ទី៦",Raw_data!$V:$V, "ទី៤", Raw_data!$AF:$AF, $B9,Raw_data!$I:$I, "ស្រី")
++COUNTIFS(Raw_data!$P:$P, "<>ទី៥",Raw_data!$P:$P, "<>ទី៦",Raw_data!$S:$S, "<>ទី៥",Raw_data!$S:$S,"<>ទី៦",Raw_data!$V:$V, "<>ទី៥",Raw_data!$V:$V,"<>ទី៦",Raw_data!$Y:$Y, "ទី៤", Raw_data!$AF:$AF, $B9,Raw_data!$I:$I, "ស្រី")
+
+
+=COUNTIFS(Raw_data!$P:$P,"ទី៥", Raw_data!$AF:$AF,$B9,Raw_data!$I:$I, "ស្រី")
++COUNTIFS(Raw_data!$P:$P,"<>ទី៤",Raw_data!$P:$P, "<>ទី៦", Raw_data!$S:$S, "ទី៥", Raw_data!$AF:$AF, $B9,Raw_data!$I:$I, "ស្រី")
++COUNTIFS(Raw_data!$P:$P,"<>ទី៤",Raw_data!$P:$P, "<>ទី៦",Raw_data!$S:$S, "<>ទី៤",Raw_data!$S:$S,"<>ទី៦",Raw_data!$V:$V, "ទី៥", Raw_data!$AF:$AF, $B9,Raw_data!$I:$I, "ស្រី")
++COUNTIFS(Raw_data!$P:$P,"<>ទី៤",Raw_data!$P:$P, "<>ទី៦",Raw_data!$S:$S, "<>ទី៤",Raw_data!$S:$S,"<>ទី៦",Raw_data!$V:$V, "<>ទី៤",Raw_data!$V:$V,"<>ទី៦",Raw_data!$Y:$Y, "ទី៥", Raw_data!$AF:$AF, $B9,Raw_data!$I:$I, "ស្រី")
+
+
+=COUNTIFS(Raw_data!$P:$P,"ទី៦",Raw_data!$AF:$AF,$B9,Raw_data!$I:$I, "ស្រី")
++COUNTIFS(Raw_data!$P:$P,"<>ទី៤",Raw_data!$P:$P, "<>ទី៥", Raw_data!$S:$S, "ទី៦", Raw_data!$AF:$AF, $B9,Raw_data!$I:$I, "ស្រី")
++COUNTIFS(Raw_data!$P:$P, "<>ទី៤",Raw_data!$P:$P, "<>ទី៥",Raw_data!$S:$S, "<>ទី៤",Raw_data!$S:$S,"<>ទី៥",Raw_data!$V:$V, "ទី៦", Raw_data!$AF:$AF, $B9,Raw_data!$I:$I, "ស្រី")
++COUNTIFS(Raw_data!$P:$P,"<>ទី៤",Raw_data!$P:$P, "<>ទី៥",Raw_data!$S:$S, "<>ទី៤",Raw_data!$S:$S,"<>ទី៥",Raw_data!$V:$V, "<>ទី៤",Raw_data!$V:$V,"<>ទី៥",Raw_data!$Y:$Y, "ទី៦", Raw_data!$AF:$AF, $B9,Raw_data!$I:$I, "ស្រី")
+
+
+
+
+
+####ស្រី
+
+=COUNTIFS(Raw_data!$P:$P,"ទី៤",Raw_data!$AF:$AF,$B9,Raw_data!$I:$I, "ស្រី")
++COUNTIFS(Raw_data!$P:$P, "<>ទី៥",Raw_data!$P:$P, "<>ទី៦", Raw_data!$S:$S, "ទី៤", Raw_data!$AF:$AF, $B9,Raw_data!$I:$I, "ស្រី")
++COUNTIFS(Raw_data!$P:$P, "<>ទី៥",Raw_data!$P:$P, "<>ទី៦",Raw_data!$S:$S, "<>ទី៥",Raw_data!$S:$S,"<>ទី៦",Raw_data!$V:$V, "ទី៤", Raw_data!$AF:$AF, $B9,Raw_data!$I:$I, "ស្រី")
++COUNTIFS(Raw_data!$P:$P, "<>ទី៥",Raw_data!$P:$P, "<>ទី៦",Raw_data!$S:$S, "<>ទី៥",Raw_data!$S:$S,"<>ទី៦",Raw_data!$V:$V, "<>ទី៥",Raw_data!$V:$V,"<>ទី៦",Raw_data!$Y:$Y, "ទី៤", Raw_data!$AF:$AF, $B9,Raw_data!$I:$I, "ស្រី")
+
+
+=COUNTIFS(Raw_data!$P:$P,"ទី៥", Raw_data!$AF:$AF,$B9,Raw_data!$I:$I, "ស្រី")
++COUNTIFS(Raw_data!$P:$P,"<>ទី៤",Raw_data!$P:$P, "<>ទី៦", Raw_data!$S:$S, "ទី៥", Raw_data!$AF:$AF, $B9,Raw_data!$I:$I, "ស្រី")
++COUNTIFS(Raw_data!$P:$P,"<>ទី៤",Raw_data!$P:$P, "<>ទី៦",Raw_data!$S:$S, "<>ទី៤",Raw_data!$S:$S,"<>ទី៦",Raw_data!$V:$V, "ទី៥", Raw_data!$AF:$AF, $B9,Raw_data!$I:$I, "ស្រី")
++COUNTIFS(Raw_data!$P:$P,"<>ទី៤",Raw_data!$P:$P, "<>ទី៦",Raw_data!$S:$S, "<>ទី៤",Raw_data!$S:$S,"<>ទី៦",Raw_data!$V:$V, "<>ទី៤",Raw_data!$V:$V,"<>ទី៦",Raw_data!$Y:$Y, "ទី៥", Raw_data!$AF:$AF, $B9,Raw_data!$I:$I, "ស្រី")
+
+
+=COUNTIFS(Raw_data!$P:$P,"ទី៦",Raw_data!$AF:$AF,$B9,Raw_data!$I:$I, "ស្រី")
++COUNTIFS(Raw_data!$P:$P,"<>ទី៤",Raw_data!$P:$P, "<>ទី៥", Raw_data!$S:$S, "ទី៦", Raw_data!$AF:$AF, $B9,Raw_data!$I:$I, "ស្រី")
++COUNTIFS(Raw_data!$P:$P, "<>ទី៤",Raw_data!$P:$P, "<>ទី៥",Raw_data!$S:$S, "<>ទី៤",Raw_data!$S:$S,"<>ទី៥",Raw_data!$V:$V, "ទី៦", Raw_data!$AF:$AF, $B9,Raw_data!$I:$I, "ស្រី")
++COUNTIFS(Raw_data!$P:$P,"<>ទី៤",Raw_data!$P:$P, "<>ទី៥",Raw_data!$S:$S, "<>ទី៤",Raw_data!$S:$S,"<>ទី៥",Raw_data!$V:$V, "<>ទី៤",Raw_data!$V:$V,"<>ទី៥",Raw_data!$Y:$Y, "ទី៦", Raw_data!$AF:$AF, $B9,Raw_data!$I:$I, "ស្រី")
+
+
+####Total V3
+
+=COUNTIFS(Raw_data!$P:$P,"ទី៤",Raw_data!$AF:$AF,$B9,Raw_data!$J:$J,"<>កិច្ចសន្យា",Raw_data!$J:$J,"<>មន្ត្រីកិច្ចសន្យា",Raw_data!$J:$J,"<>គ្រូខ្ចី",Raw_data!$J:$J,"<>កិច្ចសន្យាសហគមន៍")
++COUNTIFS(Raw_data!$P:$P, "<>ទី៥",Raw_data!$P:$P, "<>ទី៦", Raw_data!$S:$S, "ទី៤", Raw_data!$AF:$AF,$B9, Raw_data!$J:$J,"<>កិច្ចសន្យា",Raw_data!$J:$J,"<>មន្ត្រីកិច្ចសន្យា",Raw_data!$J:$J,"<>គ្រូខ្ចី",Raw_data!$J:$J,"<>កិច្ចសន្យាសហគមន៍")
++COUNTIFS(Raw_data!$P:$P, "<>ទី៥",Raw_data!$P:$P, "<>ទី៦",Raw_data!$S:$S, "<>ទី៥",Raw_data!$S:$S,"<>ទី៦",Raw_data!$V:$V, "ទី៤", Raw_data!$AF:$AF,$B9, Raw_data!$J:$J,"<>កិច្ចសន្យា",Raw_data!$J:$J,"<>មន្ត្រីកិច្ចសន្យា",Raw_data!$J:$J,"<>គ្រូខ្ចី",Raw_data!$J:$J,"<>កិច្ចសន្យាសហគមន៍")
++COUNTIFS(Raw_data!$P:$P, "<>ទី៥",Raw_data!$P:$P, "<>ទី៦",Raw_data!$S:$S, "<>ទី៥",Raw_data!$S:$S,"<>ទី៦",Raw_data!$V:$V, "<>ទី៥",Raw_data!$V:$V,"<>ទី៦",Raw_data!$Y:$Y, "ទី៤", Raw_data!$AF:$AF,$B9, Raw_data!$J:$J,"<>កិច្ចសន្យា",Raw_data!$J:$J,"<>មន្ត្រីកិច្ចសន្យា",Raw_data!$J:$J,"<>គ្រូខ្ចី",Raw_data!$J:$J,"<>កិច្ចសន្យាសហគមន៍")
+
+
+=COUNTIFS(Raw_data!$P:$P,"ទី៥", Raw_data!$AF:$AF,$B9,Raw_data!$J:$J,"<>កិច្ចសន្យា",Raw_data!$J:$J,"<>មន្ត្រីកិច្ចសន្យា",Raw_data!$J:$J,"<>គ្រូខ្ចី",Raw_data!$J:$J,"<>កិច្ចសន្យាសហគមន៍")
++COUNTIFS(Raw_data!$P:$P,"<>ទី៤",Raw_data!$P:$P, "<>ទី៦", Raw_data!$S:$S, "ទី៥", Raw_data!$AF:$AF,$B9, Raw_data!$J:$J,"<>កិច្ចសន្យា",Raw_data!$J:$J,"<>មន្ត្រីកិច្ចសន្យា",Raw_data!$J:$J,"<>គ្រូខ្ចី",Raw_data!$J:$J,"<>កិច្ចសន្យាសហគមន៍")
++COUNTIFS(Raw_data!$P:$P,"<>ទី៤",Raw_data!$P:$P, "<>ទី៦",Raw_data!$S:$S, "<>ទី៤",Raw_data!$S:$S,"<>ទី៦",Raw_data!$V:$V, "ទី៥", Raw_data!$AF:$AF,$B9, Raw_data!$J:$J,"<>កិច្ចសន្យា",Raw_data!$J:$J,"<>មន្ត្រីកិច្ចសន្យា",Raw_data!$J:$J,"<>គ្រូខ្ចី",Raw_data!$J:$J,"<>កិច្ចសន្យាសហគមន៍")
++COUNTIFS(Raw_data!$P:$P,"<>ទី៤",Raw_data!$P:$P, "<>ទី៦",Raw_data!$S:$S, "<>ទី៤",Raw_data!$S:$S,"<>ទី៦",Raw_data!$V:$V, "<>ទី៤",Raw_data!$V:$V,"<>ទី៦",Raw_data!$Y:$Y, "ទី៥", Raw_data!$AF:$AF,$B9, Raw_data!$J:$J,"<>កិច្ចសន្យា",Raw_data!$J:$J,"<>មន្ត្រីកិច្ចសន្យា",Raw_data!$J:$J,"<>គ្រូខ្ចី",Raw_data!$J:$J,"<>កិច្ចសន្យាសហគមន៍")
+
+
+=COUNTIFS(Raw_data!$P:$P,"ទី៦",Raw_data!$AF:$AF,$B9,Raw_data!$J:$J,"<>កិច្ចសន្យា",Raw_data!$J:$J,"<>មន្ត្រីកិច្ចសន្យា",Raw_data!$J:$J,"<>គ្រូខ្ចី",Raw_data!$J:$J,"<>កិច្ចសន្យាសហគមន៍")
++COUNTIFS(Raw_data!$P:$P,"<>ទី៤",Raw_data!$P:$P, "<>ទី៥", Raw_data!$S:$S, "ទី៦", Raw_data!$AF:$AF,$B9, Raw_data!$J:$J,"<>កិច្ចសន្យា",Raw_data!$J:$J,"<>មន្ត្រីកិច្ចសន្យា",Raw_data!$J:$J,"<>គ្រូខ្ចី",Raw_data!$J:$J,"<>កិច្ចសន្យាសហគមន៍")
++COUNTIFS(Raw_data!$P:$P, "<>ទី៤",Raw_data!$P:$P, "<>ទី៥",Raw_data!$S:$S, "<>ទី៤",Raw_data!$S:$S,"<>ទី៥",Raw_data!$V:$V, "ទី៦", Raw_data!$AF:$AF,$B9, Raw_data!$J:$J,"<>កិច្ចសន្យា",Raw_data!$J:$J,"<>មន្ត្រីកិច្ចសន្យា",Raw_data!$J:$J,"<>គ្រូខ្ចី",Raw_data!$J:$J,"<>កិច្ចសន្យាសហគមន៍")
++COUNTIFS(Raw_data!$P:$P,"<>ទី៤",Raw_data!$P:$P, "<>ទី៥",Raw_data!$S:$S, "<>ទី៤",Raw_data!$S:$S,"<>ទី៥",Raw_data!$V:$V, "<>ទី៤",Raw_data!$V:$V,"<>ទី៥",Raw_data!$Y:$Y, "ទី៦", Raw_data!$AF:$AF,$B9, Raw_data!$J:$J,"<>កិច្ចសន្យា",Raw_data!$J:$J,"<>មន្ត្រីកិច្ចសន្យា",Raw_data!$J:$J,"<>គ្រូខ្ចី",Raw_data!$J:$J,"<>កិច្ចសន្យាសហគមន៍")
+
+
+####Total F V3
+
+=COUNTIFS(Raw_data!$P:$P,"ទី៤",Raw_data!$AF:$AF,$B9,Raw_data!$J:$J,"<>កិច្ចសន្យា",Raw_data!$J:$J,"<>មន្ត្រីកិច្ចសន្យា",Raw_data!$J:$J,"<>គ្រូខ្ចី",Raw_data!$J:$J,"<>កិច្ចសន្យាសហគមន៍",Raw_data!$I:$I, "ស្រី")
++COUNTIFS(Raw_data!$P:$P, "<>ទី៥",Raw_data!$P:$P, "<>ទី៦", Raw_data!$S:$S, "ទី៤", Raw_data!$AF:$AF,$B9, Raw_data!$J:$J,"<>កិច្ចសន្យា",Raw_data!$J:$J,"<>មន្ត្រីកិច្ចសន្យា",Raw_data!$J:$J,"<>គ្រូខ្ចី",Raw_data!$J:$J,"<>កិច្ចសន្យាសហគមន៍",Raw_data!$I:$I, "ស្រី")
++COUNTIFS(Raw_data!$P:$P, "<>ទី៥",Raw_data!$P:$P, "<>ទី៦",Raw_data!$S:$S, "<>ទី៥",Raw_data!$S:$S,"<>ទី៦",Raw_data!$V:$V, "ទី៤", Raw_data!$AF:$AF,$B9, Raw_data!$J:$J,"<>កិច្ចសន្យា",Raw_data!$J:$J,"<>មន្ត្រីកិច្ចសន្យា",Raw_data!$J:$J,"<>គ្រូខ្ចី",Raw_data!$J:$J,"<>កិច្ចសន្យាសហគមន៍",Raw_data!$I:$I, "ស្រី")
++COUNTIFS(Raw_data!$P:$P, "<>ទី៥",Raw_data!$P:$P, "<>ទី៦",Raw_data!$S:$S, "<>ទី៥",Raw_data!$S:$S,"<>ទី៦",Raw_data!$V:$V, "<>ទី៥",Raw_data!$V:$V,"<>ទី៦",Raw_data!$Y:$Y, "ទី៤", Raw_data!$AF:$AF,$B9, Raw_data!$J:$J,"<>កិច្ចសន្យា",Raw_data!$J:$J,"<>មន្ត្រីកិច្ចសន្យា",Raw_data!$J:$J,"<>គ្រូខ្ចី",Raw_data!$J:$J,"<>កិច្ចសន្យាសហគមន៍",Raw_data!$I:$I, "ស្រី")
+
+
+=COUNTIFS(Raw_data!$P:$P,"ទី៥", Raw_data!$AF:$AF,$B9,Raw_data!$J:$J,"<>កិច្ចសន្យា",Raw_data!$J:$J,"<>មន្ត្រីកិច្ចសន្យា",Raw_data!$J:$J,"<>គ្រូខ្ចី",Raw_data!$J:$J,"<>កិច្ចសន្យាសហគមន៍",Raw_data!$I:$I, "ស្រី")
++COUNTIFS(Raw_data!$P:$P,"<>ទី៤",Raw_data!$P:$P, "<>ទី៦", Raw_data!$S:$S, "ទី៥", Raw_data!$AF:$AF,$B9, Raw_data!$J:$J,"<>កិច្ចសន្យា",Raw_data!$J:$J,"<>មន្ត្រីកិច្ចសន្យា",Raw_data!$J:$J,"<>គ្រូខ្ចី",Raw_data!$J:$J,"<>កិច្ចសន្យាសហគមន៍",Raw_data!$I:$I, "ស្រី")
++COUNTIFS(Raw_data!$P:$P,"<>ទី៤",Raw_data!$P:$P, "<>ទី៦",Raw_data!$S:$S, "<>ទី៤",Raw_data!$S:$S,"<>ទី៦",Raw_data!$V:$V, "ទី៥", Raw_data!$AF:$AF,$B9, Raw_data!$J:$J,"<>កិច្ចសន្យា",Raw_data!$J:$J,"<>មន្ត្រីកិច្ចសន្យា",Raw_data!$J:$J,"<>គ្រូខ្ចី",Raw_data!$J:$J,"<>កិច្ចសន្យាសហគមន៍",Raw_data!$I:$I, "ស្រី")
++COUNTIFS(Raw_data!$P:$P,"<>ទី៤",Raw_data!$P:$P, "<>ទី៦",Raw_data!$S:$S, "<>ទី៤",Raw_data!$S:$S,"<>ទី៦",Raw_data!$V:$V, "<>ទី៤",Raw_data!$V:$V,"<>ទី៦",Raw_data!$Y:$Y, "ទី៥", Raw_data!$AF:$AF,$B9, Raw_data!$J:$J,"<>កិច្ចសន្យា",Raw_data!$J:$J,"<>មន្ត្រីកិច្ចសន្យា",Raw_data!$J:$J,"<>គ្រូខ្ចី",Raw_data!$J:$J,"<>កិច្ចសន្យាសហគមន៍",Raw_data!$I:$I, "ស្រី")
+
+
+=COUNTIFS(Raw_data!$P:$P,"ទី៦",Raw_data!$AF:$AF,$B9,Raw_data!$J:$J,"<>កិច្ចសន្យា",Raw_data!$J:$J,"<>មន្ត្រីកិច្ចសន្យា",Raw_data!$J:$J,"<>គ្រូខ្ចី",Raw_data!$J:$J,"<>កិច្ចសន្យាសហគមន៍",Raw_data!$I:$I, "ស្រី")
++COUNTIFS(Raw_data!$P:$P,"<>ទី៤",Raw_data!$P:$P, "<>ទី៥", Raw_data!$S:$S, "ទី៦", Raw_data!$AF:$AF,$B9, Raw_data!$J:$J,"<>កិច្ចសន្យា",Raw_data!$J:$J,"<>មន្ត្រីកិច្ចសន្យា",Raw_data!$J:$J,"<>គ្រូខ្ចី",Raw_data!$J:$J,"<>កិច្ចសន្យាសហគមន៍",Raw_data!$I:$I, "ស្រី")
++COUNTIFS(Raw_data!$P:$P, "<>ទី៤",Raw_data!$P:$P, "<>ទី៥",Raw_data!$S:$S, "<>ទី៤",Raw_data!$S:$S,"<>ទី៥",Raw_data!$V:$V, "ទី៦", Raw_data!$AF:$AF,$B9, Raw_data!$J:$J,"<>កិច្ចសន្យា",Raw_data!$J:$J,"<>មន្ត្រីកិច្ចសន្យា",Raw_data!$J:$J,"<>គ្រូខ្ចី",Raw_data!$J:$J,"<>កិច្ចសន្យាសហគមន៍",Raw_data!$I:$I, "ស្រី")
++COUNTIFS(Raw_data!$P:$P,"<>ទី៤",Raw_data!$P:$P, "<>ទី៥",Raw_data!$S:$S, "<>ទី៤",Raw_data!$S:$S,"<>ទី៥",Raw_data!$V:$V, "<>ទី៤",Raw_data!$V:$V,"<>ទី៥",Raw_data!$Y:$Y, "ទី៦", Raw_data!$AF:$AF,$B9, Raw_data!$J:$J,"<>កិច្ចសន្យា",Raw_data!$J:$J,"<>មន្ត្រីកិច្ចសន្យា",Raw_data!$J:$J,"<>គ្រូខ្ចី",Raw_data!$J:$J,"<>កិច្ចសន្យាសហគមន៍",Raw_data!$I:$I, "ស្រី")
+
+####Total V4
+
+=COUNTIFS(Raw_data!$P:$P,"ទី៤",Raw_data!$AF:$AF,$B9,Raw_data!$J:$J,"កិច្ចសន្យា")
++COUNTIFS(Raw_data!$P:$P, "<>ទី៥",Raw_data!$P:$P, "<>ទី៦", Raw_data!$S:$S, "ទី៤", Raw_data!$AF:$AF,$B9, Raw_data!$J:$J,"កិច្ចសន្យា")
++COUNTIFS(Raw_data!$P:$P, "<>ទី៥",Raw_data!$P:$P, "<>ទី៦",Raw_data!$S:$S, "<>ទី៥",Raw_data!$S:$S,"<>ទី៦",Raw_data!$V:$V, "ទី៤", Raw_data!$AF:$AF,$B9, Raw_data!$J:$J,"កិច្ចសន្យា")
++COUNTIFS(Raw_data!$P:$P, "<>ទី៥",Raw_data!$P:$P, "<>ទី៦",Raw_data!$S:$S, "<>ទី៥",Raw_data!$S:$S,"<>ទី៦",Raw_data!$V:$V, "<>ទី៥",Raw_data!$V:$V,"<>ទី៦",Raw_data!$Y:$Y, "ទី៤", Raw_data!$AF:$AF,$B9, Raw_data!$J:$J,"កិច្ចសន្យា")
+
+
+=COUNTIFS(Raw_data!$P:$P,"ទី៥", Raw_data!$AF:$AF,$B9,Raw_data!$J:$J,"កិច្ចសន្យា")
++COUNTIFS(Raw_data!$P:$P,"<>ទី៤",Raw_data!$P:$P, "<>ទី៦", Raw_data!$S:$S, "ទី៥", Raw_data!$AF:$AF,$B9, Raw_data!$J:$J,"កិច្ចសន្យា")
++COUNTIFS(Raw_data!$P:$P,"<>ទី៤",Raw_data!$P:$P, "<>ទី៦",Raw_data!$S:$S, "<>ទី៤",Raw_data!$S:$S,"<>ទី៦",Raw_data!$V:$V, "ទី៥", Raw_data!$AF:$AF,$B9, Raw_data!$J:$J,"កិច្ចសន្យា")
++COUNTIFS(Raw_data!$P:$P,"<>ទី៤",Raw_data!$P:$P, "<>ទី៦",Raw_data!$S:$S, "<>ទី៤",Raw_data!$S:$S,"<>ទី៦",Raw_data!$V:$V, "<>ទី៤",Raw_data!$V:$V,"<>ទី៦",Raw_data!$Y:$Y, "ទី៥", Raw_data!$AF:$AF,$B9, Raw_data!$J:$J,"កិច្ចសន្យា")
+
+
+=COUNTIFS(Raw_data!$P:$P,"ទី៦",Raw_data!$AF:$AF,$B9,Raw_data!$J:$J,"កិច្ចសន្យា")
++COUNTIFS(Raw_data!$P:$P,"<>ទី៤",Raw_data!$P:$P, "<>ទី៥", Raw_data!$S:$S, "ទី៦", Raw_data!$AF:$AF,$B9, Raw_data!$J:$J,"កិច្ចសន្យា")
++COUNTIFS(Raw_data!$P:$P, "<>ទី៤",Raw_data!$P:$P, "<>ទី៥",Raw_data!$S:$S, "<>ទី៤",Raw_data!$S:$S,"<>ទី៥",Raw_data!$V:$V, "ទី៦", Raw_data!$AF:$AF,$B9, Raw_data!$J:$J,"កិច្ចសន្យា")
++COUNTIFS(Raw_data!$P:$P,"<>ទី៤",Raw_data!$P:$P, "<>ទី៥",Raw_data!$S:$S, "<>ទី៤",Raw_data!$S:$S,"<>ទី៥",Raw_data!$V:$V, "<>ទី៤",Raw_data!$V:$V,"<>ទី៥",Raw_data!$Y:$Y, "ទី៦", Raw_data!$AF:$AF,$B9, Raw_data!$J:$J,"កិច្ចសន្យា")
+
+
+####Total F V4
+
+=COUNTIFS(Raw_data!$P:$P,"ទី៤",Raw_data!$AF:$AF,$B9,Raw_data!$J:$J,"កិច្ចសន្យា",Raw_data!$I:$I, "ស្រី")
++COUNTIFS(Raw_data!$P:$P, "<>ទី៥",Raw_data!$P:$P, "<>ទី៦", Raw_data!$S:$S, "ទី៤", Raw_data!$AF:$AF,$B9, Raw_data!$J:$J,"កិច្ចសន្យា",Raw_data!$I:$I, "ស្រី")
++COUNTIFS(Raw_data!$P:$P, "<>ទី៥",Raw_data!$P:$P, "<>ទី៦",Raw_data!$S:$S, "<>ទី៥",Raw_data!$S:$S,"<>ទី៦",Raw_data!$V:$V, "ទី៤", Raw_data!$AF:$AF,$B9, Raw_data!$J:$J,"កិច្ចសន្យា",Raw_data!$I:$I, "ស្រី")
++COUNTIFS(Raw_data!$P:$P, "<>ទី៥",Raw_data!$P:$P, "<>ទី៦",Raw_data!$S:$S, "<>ទី៥",Raw_data!$S:$S,"<>ទី៦",Raw_data!$V:$V, "<>ទី៥",Raw_data!$V:$V,"<>ទី៦",Raw_data!$Y:$Y, "ទី៤", Raw_data!$AF:$AF,$B9, Raw_data!$J:$J,"កិច្ចសន្យា",Raw_data!$I:$I, "ស្រី")
+
+
+=COUNTIFS(Raw_data!$P:$P,"ទី៥", Raw_data!$AF:$AF,$B9,Raw_data!$J:$J,"កិច្ចសន្យា",Raw_data!$I:$I, "ស្រី")
++COUNTIFS(Raw_data!$P:$P,"<>ទី៤",Raw_data!$P:$P, "<>ទី៦", Raw_data!$S:$S, "ទី៥", Raw_data!$AF:$AF,$B9, Raw_data!$J:$J,"កិច្ចសន្យា",Raw_data!$I:$I, "ស្រី")
++COUNTIFS(Raw_data!$P:$P,"<>ទី៤",Raw_data!$P:$P, "<>ទី៦",Raw_data!$S:$S, "<>ទី៤",Raw_data!$S:$S,"<>ទី៦",Raw_data!$V:$V, "ទី៥", Raw_data!$AF:$AF,$B9, Raw_data!$J:$J,"កិច្ចសន្យា",Raw_data!$I:$I, "ស្រី")
++COUNTIFS(Raw_data!$P:$P,"<>ទី៤",Raw_data!$P:$P, "<>ទី៦",Raw_data!$S:$S, "<>ទី៤",Raw_data!$S:$S,"<>ទី៦",Raw_data!$V:$V, "<>ទី៤",Raw_data!$V:$V,"<>ទី៦",Raw_data!$Y:$Y, "ទី៥", Raw_data!$AF:$AF,$B9, Raw_data!$J:$J,"កិច្ចសន្យា",Raw_data!$I:$I, "ស្រី")
+
+
+=COUNTIFS(Raw_data!$P:$P,"ទី៦",Raw_data!$AF:$AF,$B9,Raw_data!$J:$J,"កិច្ចសន្យា",Raw_data!$I:$I, "ស្រី")
++COUNTIFS(Raw_data!$P:$P,"<>ទី៤",Raw_data!$P:$P, "<>ទី៥", Raw_data!$S:$S, "ទី៦", Raw_data!$AF:$AF,$B9, Raw_data!$J:$J,"កិច្ចសន្យា",Raw_data!$I:$I, "ស្រី")
++COUNTIFS(Raw_data!$P:$P, "<>ទី៤",Raw_data!$P:$P, "<>ទី៥",Raw_data!$S:$S, "<>ទី៤",Raw_data!$S:$S,"<>ទី៥",Raw_data!$V:$V, "ទី៦", Raw_data!$AF:$AF,$B9, Raw_data!$J:$J,"កិច្ចសន្យា",Raw_data!$I:$I, "ស្រី")
++COUNTIFS(Raw_data!$P:$P,"<>ទី៤",Raw_data!$P:$P, "<>ទី៥",Raw_data!$S:$S, "<>ទី៤",Raw_data!$S:$S,"<>ទី៥",Raw_data!$V:$V, "<>ទី៤",Raw_data!$V:$V,"<>ទី៥",Raw_data!$Y:$Y, "ទី៦", Raw_data!$AF:$AF,$B9, Raw_data!$J:$J,"កិច្ចសន្យា",Raw_data!$I:$I, "ស្រី")
+
+
+
+####Total V5
+
+=COUNTIFS(Raw_data!$P:$P,"ទី៤",Raw_data!$AF:$AF,$B9,Raw_data!$J:$J,"កិច្ចសន្យា")
+
+
+=COUNTIFS(Raw_data!$P:$P,"ទី៥", Raw_data!$AF:$AF,$B9,Raw_data!$J:$J,"កិច្ចសន្យា")
+
+
+=COUNTIFS(Raw_data!$P:$P,"ទី៦",Raw_data!$AF:$AF,$B9,Raw_data!$J:$J,"កិច្ចសន្យា")
+
+
+####Total F V5
+
+=COUNTIFS(Raw_data!$P:$P,"ទី៤",Raw_data!$AF:$AF,$B9,Raw_data!$J:$J,"កិច្ចសន្យា",Raw_data!$I:$I, "ស្រី")
+
+
+=COUNTIFS(Raw_data!$P:$P,"ទី៥", Raw_data!$AF:$AF,$B9,Raw_data!$J:$J,"កិច្ចសន្យា",Raw_data!$I:$I, "ស្រី")
+
+
+=COUNTIFS(Raw_data!$P:$P,"ទី៦",Raw_data!$AF:$AF,$B9,Raw_data!$J:$J,"កិច្ចសន្យា",Raw_data!$I:$I, "ស្រី")
+
+
+
+####Total V6
+
+=COUNTIFS(Raw_data!$P:$P,"ទី៤",Raw_data!$AF:$AF,$B9,Raw_data!$J:$J,"<>កិច្ចសន្យា",Raw_data!$J:$J,"<>មន្ត្រីកិច្ចសន្យា",Raw_data!$J:$J,"<>គ្រូខ្ចី",Raw_data!$J:$J,"<>កិច្ចសន្យាសហគមន៍")
+
+
+=COUNTIFS(Raw_data!$P:$P,"ទី៥", Raw_data!$AF:$AF,$B9,Raw_data!$J:$J,"<>កិច្ចសន្យា",Raw_data!$J:$J,"<>មន្ត្រីកិច្ចសន្យា",Raw_data!$J:$J,"<>គ្រូខ្ចី",Raw_data!$J:$J,"<>កិច្ចសន្យាសហគមន៍")
+
+
+=COUNTIFS(Raw_data!$P:$P,"ទី៦",Raw_data!$AF:$AF,$B9,Raw_data!$J:$J,"<>កិច្ចសន្យា",Raw_data!$J:$J,"<>មន្ត្រីកិច្ចសន្យា",Raw_data!$J:$J,"<>គ្រូខ្ចី",Raw_data!$J:$J,"<>កិច្ចសន្យាសហគមន៍")
+
+
+####Total F V6
+
+=COUNTIFS(Raw_data!$P:$P,"ទី៤",Raw_data!$AF:$AF,$B9,Raw_data!$J:$J,"<>កិច្ចសន្យា",Raw_data!$J:$J,"<>មន្ត្រីកិច្ចសន្យា",Raw_data!$J:$J,"<>គ្រូខ្ចី",Raw_data!$J:$J,"<>កិច្ចសន្យាសហគមន៍",Raw_data!$I:$I, "ស្រី")
+
+
+=COUNTIFS(Raw_data!$P:$P,"ទី៥", Raw_data!$AF:$AF,$B9,Raw_data!$J:$J,"<>កិច្ចសន្យា",Raw_data!$J:$J,"<>មន្ត្រីកិច្ចសន្យា",Raw_data!$J:$J,"<>គ្រូខ្ចី",Raw_data!$J:$J,"<>កិច្ចសន្យាសហគមន៍",Raw_data!$I:$I, "ស្រី")
+
+
+=COUNTIFS(Raw_data!$P:$P,"ទី៦",Raw_data!$AF:$AF,$B9,Raw_data!$J:$J,"<>កិច្ចសន្យា",Raw_data!$J:$J,"<>មន្ត្រីកិច្ចសន្យា",Raw_data!$J:$J,"<>គ្រូខ្ចី",Raw_data!$J:$J,"<>កិច្ចសន្យាសហគមន៍",Raw_data!$I:$I, "ស្រី")
+
+

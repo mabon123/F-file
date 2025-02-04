@@ -318,7 +318,7 @@ class ExcelEditor:
 
         if invalid_entries:
             flattened_entries = [item for sublist in invalid_entries for item in sublist]
-            return f"********ការផ្ទៀតផ្ទាត់នៅក្នុងបំណែងចែកភារកិច្ចមានបញ្ហា '{sheet_name}':\n" + "\n".join(map(str, flattened_entries))
+            return f"********ការផ្ទៀតផ្ទាត់នៅក្នុងបំណែងចែកភារកិច្ចមានបញ្ហា '{ws}':\n" + "\n".join(map(str, flattened_entries))
     def update_cell(self, wss, cell, value):
         """Update a specific cell with a new value."""
         update_check = []
