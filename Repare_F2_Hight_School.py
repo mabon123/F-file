@@ -287,7 +287,14 @@ class ExcelEditor:
                         if student_value is None or student_value <= 0:
                             results.append(f"* មានបញ្ហាចំនួនសិស្ស {student_value} ក្នុង {name_blog_row}")
                             ws[f"{student_col}{row_num}"].fill = red_fill  # Highlight student cell in red
-
+                    if add_position_value == "បង្រៀន":
+                        if grade_value is not None:
+                            results.append(f"* មានបញ្ហាចំនួនថ្នាក់ {grade_value} មិនមែនគ្រូបន្ទុកថ្នាក់ ក្នុង {name_blog_row}")
+                            ws[f"{grade_col}{row_num}"].fill = red_fill  # Highlight grade cell in red
+                        # Check Total Student
+                        if student_value is not None or student_value == 0:
+                            results.append(f"* មានបញ្ហាចំនួនសិស្ស {student_value} មិនមែនគ្រូបន្ទុកថ្នាក់ ក្នុង {name_blog_row}")
+                            ws[f"{student_col}{row_num}"].fill = red_fill  # Highlight student cell in red
                 elif add_position_value is not None:
                     results.append(f"* ចំណុចភារកិច្ចបន្ថែមមានបញ្ហា '{add_position_value}' ក្នុង {name_blog_row}")
                     ws[f"{add_position_col}{row_num}"].fill = red_fill  # Highlight add position cell in red
@@ -318,7 +325,7 @@ class ExcelEditor:
 
         if invalid_entries:
             flattened_entries = [item for sublist in invalid_entries for item in sublist]
-            return f"********ការផ្ទៀតផ្ទាត់នៅក្នុងបំណែងចែកភារកិច្ចមានបញ្ហា '{sheet_name}':\n" + "\n".join(map(str, flattened_entries))
+            return f"********ការផ្ទៀតផ្ទាត់នៅក្នុងបំណែងចែកភារកិច្ចមានបញ្ហា '{ws}':\n" + "\n".join(map(str, flattened_entries))
     def update_cell(self, wss, cell, value):
         """Update a specific cell with a new value."""
         update_check = []

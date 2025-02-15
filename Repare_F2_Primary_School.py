@@ -432,11 +432,13 @@ class ExcelEditor:
         and within the numeric range."""
         
         cell_edit = {
-            "AW12": '=COUNTIF(X50:X303,"<=40")+COUNTIF(AA50:AA303,"<=40")+COUNTIF(AD50:AD303,"<=40")+COUNTIF(AG50:AG303,"<=40")',
-            "AW14": '=COUNTIF(X50:X303,">=50")+COUNTIF(AA50:AA303,">=50")+COUNTIF(AD50:AD303,">=50")+COUNTIF(AG50:AG303,">=50")',
-            "W41": '=IF(OR(AK3="",AK3="ធម្មតា"),0,(V19-(BY17+BY18)))',
-            "W42": '=IF(AK3="លំបាក",(V19-(BY17+BY18))*80000,IF(AK3="ដាច់ស្រយាលប្រភេទ១",(V19-(BY17+BY18))*100000,IF(AK3="ដាច់ស្រយាលប្រភេទ២",(V19-(BY17+BY18))*120000,IF(AK3="ធម្មតា",(V19-(BY17+BY18))*0,0))))'
+            "AW12": '=COUNTIF(X50:X303,"<=40") + COUNTIF(AA50:AA325,"<=40") + COUNTIF(AD50:AD324,"<=40") + COUNTIF(AG50:AG351,"<=40")',
+            "AW14": '=COUNTIF(X50:X325,">=50") + COUNTIF(AA50:AA325,">=50") + COUNTIF(AD50:AD325,">=50") + COUNTIF(AG50:AG303,">=50")',
+            "W41": '=IF(OR(AK3="", AK3="ធម្មតា"), 0, V19 - (BY17 + BY18))',
+            "W42": '=IF(AK3="លំបាក", (V19 - (BY17 + BY18)) * 80000, IF(AK3="ដាច់ស្រយាលប្រភេទ១", (V19 - (BY17 + BY18)) * 100000, IF(AK3="ដាច់ស្រយាលប្រភេទ២", (V19 - (BY17 + BY18)) * 120000, IF(AK3="ធម្មតា", (V19 - (BY17 + BY18)) * 0, 0))))'
         }
+
+
 
         results = []
         for sheet in self.workbook.sheetnames:
@@ -570,14 +572,16 @@ class ExcelEditor:
                                 results.append(contract_message)
                             results.append(self.validate_levels(ws, count, 351, "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
                     # Update the cell with the new value
+
+                else:
+                    results.append(f"គ្មានទិន្នន័យនៅក្នុង: {sheet}")
+                
                     for Key in cell_edit.keys():
                         for result in [
                             self.update_cell(ws, Key, cell_edit[Key])
                         ]:
                             if result:  # Only append non-None results
                                 results.append(result)
-                else:
-                    results.append(f"គ្មានទិន្នន័យនៅក្នុង: {sheet}")
                 
             else:
                 results.append(f"មិនមែនជា Sheet សាលារំលង: {sheet}")
@@ -589,6 +593,7 @@ class ExcelEditor:
         """Save the workbook back to the file."""
         try:
             self.workbook.save(self.file_path)
+            self.workbook.close()
             return "កិច្ចការបានរក្សាទុករួចរាល់។"
         except Exception as e:
             return f"មានបញ្ហាក្នុងការរក្សារទុក ឬ Excel កំពុងបើក: {e}"
