@@ -86,7 +86,7 @@ class ExcelEditor:
         # Return None if the row count is correct and there's no action needed
         return None,0
 
-    def validate_levels(self, wss, start_row, end_row, level_col, salary_col, certificate_col, day_col, month_col, year_col, gender_col, position_col, add_position_col, grade_col, student_col, subject_1_col, name_blog_row):
+    def validate_levels(self, wss, start_row, end_row, level_col, salary_col, certificate_col, day_col, month_col, year_col, gender_col, position_col, add_position_col, grade_col, student_col, subject_1_col, major_certification_col, name_blog_row):
         """
         Validate that values in level_col (e.g., 'M') belong to level_salary_a
         and their corresponding values in salary_col (e.g., 'P') exist in the level's set.
@@ -221,6 +221,7 @@ class ExcelEditor:
             grade_value = ws[f"{grade_col}{row_num}"].value
             student_value = ws[f"{student_col}{row_num}"].value
             subject_1_value = ws[f"{subject_1_col}{row_num}"].value
+            major_certification_value = ws[f"{major_certification_col}{row_num}"].value
             
             results = []
 
@@ -237,6 +238,11 @@ class ExcelEditor:
                 if certificate_value not in certificate:
                     results.append(f"* បញ្ចូលសញ្ញាបត្រពុំត្រឹមត្រូវ {certificate_value} ក្នុង {name_blog_row}")
                     ws[f"{certificate_col}{row_num}"].fill = red_fill  # Highlight certificate cell in red
+                    ws[f"{major_certification_col}{row_num}"].fill = red_fill
+                elif certificate_value == "បរិញ្ញាបត្រ" or certificate_value == "អនុបណ្ឌិត" or certificate_value == "បណ្ឌិត":
+                    if  major_certification_value is None:
+                        results.append(f"* សូមបំពេញឯកទេសនៃសញ្ញាបត្រ {certificate_value} ក្នុង {name_blog_row}")
+                        ws[f"{major_certification_col}{row_num}"].fill = red_fill
 
                 # Try convert and check date of birth
                 try:
@@ -284,6 +290,14 @@ class ExcelEditor:
                             results.append(f"* មានបញ្ហាចំនួនថ្នាក់ {grade_value} ក្នុង {name_blog_row}")
                             ws[f"{grade_col}{row_num}"].fill = red_fill  # Highlight grade cell in red
                         # Check Total Student
+                        if student_value is not None:
+                            try:
+                                student_value = int(student_value)
+                            except ValueError:
+                                results.append(f"* មានបញ្ហាចំនួនសិស្ស '{student_value}' មិនមែនជាលេខសូមបញ្ចូលអោយបានត្រឹមត្រូវ ក្នុង {name_blog_row}")
+                                ws[f"{student_col}{row_num}"].fill = red_fill  # Highlight student cell in red
+                                continue
+
                         if student_value is None or student_value <= 0:
                             results.append(f"* មានបញ្ហាចំនួនសិស្ស {student_value} ក្នុង {name_blog_row}")
                             ws[f"{student_col}{row_num}"].fill = red_fill  # Highlight student cell in red
@@ -361,7 +375,7 @@ class ExcelEditor:
         results = []
         for sheet in self.workbook.sheetnames:
             if sheet.startswith('S') and sheet[1:].isdigit():
-                results.append(f"ដំណើរការផ្ទៀងផ្ទាត់នៅក្នុង: {sheet}")
+                results.append(f"----------------------ដំណើរការផ្ទៀងផ្ទាត់នៅក្នុង: {sheet}")
                 ws = self.workbook[sheet]
 
                 error_cells = self.check_formula_errors(ws)
@@ -382,91 +396,91 @@ class ExcelEditor:
                 admin_message, result_admin_row = self.check_row(ws, count, "A", "ខ", 121, "ក.បុគ្គលិកទីចាត់ការ")
                 if result_admin_row != 0:
                     results.append(admin_message)
-                    results.append(self.validate_levels(ws, 58, (177-result_admin_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "ក.បុគ្គលិកទីចាត់ការ"))
+                    results.append(self.validate_levels(ws, 58, (177-result_admin_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y","AE", "ក.បុគ្គលិកទីចាត់ការ"))
                     count =179-result_admin_row
                     teacher_message_high,result_teacher_high_row = self.check_row(ws, count, "A", "គ", 151, "ខ. គ្រូបង្រៀននៅមធ្យមសិក្សាទុតិយភូមិ")
                     if result_teacher_high_row != 0:
                         results.append(teacher_message_high)
-                        results.append(self.validate_levels(ws, count, (328-result_admin_row-result_teacher_high_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "ខ. គ្រូបង្រៀននៅមធ្យមសិក្សាទុតិយភូមិ"))
+                        results.append(self.validate_levels(ws, count, (328-result_admin_row-result_teacher_high_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y","AE", "ខ. គ្រូបង្រៀននៅមធ្យមសិក្សាទុតិយភូមិ"))
                         count = 330 - result_teacher_high_row - result_admin_row
                         teacher_message_low,result_teacher_low_row = self.check_row(ws, count, "A", "ឃ", 151, "គ. គ្រូបង្រៀននៅមធ្យមសិក្សាបឋមភូមិ")
                         if result_teacher_low_row != 0:
                             results.append(teacher_message_low)
-                            results.append(self.validate_levels(ws, count, (479-result_admin_row-result_teacher_high_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "គ. គ្រូបង្រៀននៅមធ្យមសិក្សាបឋមភូមិ"))
+                            results.append(self.validate_levels(ws, count, (479-result_admin_row-result_teacher_high_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y","AE", "គ. គ្រូបង្រៀននៅមធ្យមសិក្សាបឋមភូមិ"))
                             count = 481 - result_teacher_low_row - result_teacher_high_row - result_admin_row
                             contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 41, "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា")
                             if contract_message:
                                 results.append(contract_message)
-                            results.append(self.validate_levels(ws, count, (520-result_admin_row-result_teacher_high_row-result_teacher_low_row-result_contract_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា"))
+                            results.append(self.validate_levels(ws, count, (520-result_admin_row-result_teacher_high_row-result_teacher_low_row-result_contract_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y","AE", "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា"))
                         else:
-                            results.append(self.validate_levels(ws, count, (479-result_admin_row-result_teacher_high_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "គ. គ្រូបង្រៀននៅមធ្យមសិក្សាបឋមភូមិ"))
+                            results.append(self.validate_levels(ws, count, (479-result_admin_row-result_teacher_high_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y","AE", "គ. គ្រូបង្រៀននៅមធ្យមសិក្សាបឋមភូមិ"))
                             count = 481 - result_teacher_high_row - result_admin_row - result_teacher_low_row
                             contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 41, "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា")
                             if contract_message:
                                 results.append(contract_message)
-                            results.append(self.validate_levels(ws, count, (520-result_admin_row-result_teacher_high_row-result_teacher_low_row-result_contract_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា"))
+                            results.append(self.validate_levels(ws, count, (520-result_admin_row-result_teacher_high_row-result_teacher_low_row-result_contract_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y","AE", "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា"))
                     else:
-                        results.append(self.validate_levels(ws, count, (328-result_admin_row-result_teacher_high_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "ខ. គ្រូបង្រៀននៅមធ្យមសិក្សាទុតិយភូមិ"))
+                        results.append(self.validate_levels(ws, count, (328-result_admin_row-result_teacher_high_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y","AE", "ខ. គ្រូបង្រៀននៅមធ្យមសិក្សាទុតិយភូមិ"))
                         count = 330 - result_teacher_high_row - result_admin_row
                         teacher_message_low,result_teacher_low_row = self.check_row(ws, count, "A", "ឃ", 151, "គ. គ្រូបង្រៀននៅមធ្យមសិក្សាបឋមភូមិ")
                         if result_teacher_low_row != 0:
                             results.append(teacher_message_low)
-                            results.append(self.validate_levels(ws, count, (479-result_admin_row-result_teacher_high_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "គ. គ្រូបង្រៀននៅមធ្យមសិក្សាបឋមភូមិ"))
+                            results.append(self.validate_levels(ws, count, (479-result_admin_row-result_teacher_high_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y","AE", "គ. គ្រូបង្រៀននៅមធ្យមសិក្សាបឋមភូមិ"))
                             count = 481 - result_teacher_low_row - result_teacher_high_row - result_admin_row
                             contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 41, "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា")
                             if contract_message:
                                 results.append(contract_message)
-                            results.append(self.validate_levels(ws, count, (520-result_admin_row-result_teacher_high_row-result_teacher_low_row-result_contract_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា"))
+                            results.append(self.validate_levels(ws, count, (520-result_admin_row-result_teacher_high_row-result_teacher_low_row-result_contract_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y","AE", "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា"))
                         else:
-                            results.append(self.validate_levels(ws, count, (479-result_admin_row-result_teacher_high_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "គ. គ្រូបង្រៀននៅមធ្យមសិក្សាបឋមភូមិ"))
+                            results.append(self.validate_levels(ws, count, (479-result_admin_row-result_teacher_high_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y","AE", "គ. គ្រូបង្រៀននៅមធ្យមសិក្សាបឋមភូមិ"))
                             count = 481 - result_teacher_high_row - result_admin_row - result_teacher_low_row
                             contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 41, "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា")
                             if contract_message:
                                 results.append(contract_message)
-                            results.append(self.validate_levels(ws, count, (520-result_admin_row-result_teacher_high_row-result_teacher_low_row-result_contract_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា"))
+                            results.append(self.validate_levels(ws, count, (520-result_admin_row-result_teacher_high_row-result_teacher_low_row-result_contract_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y","AE", "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា"))
                 else:
-                    results.append(self.validate_levels(ws, 58, (177-result_admin_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "ក.បុគ្គលិកទីចាត់ការ"))
+                    results.append(self.validate_levels(ws, 58, (177-result_admin_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y","AE", "ក.បុគ្គលិកទីចាត់ការ"))
                     count =179-result_admin_row
                     teacher_message_high,result_teacher_high_row = self.check_row(ws, count, "A", "គ", 151, "ខ. គ្រូបង្រៀននៅមធ្យមសិក្សាទុតិយភូមិ")
                     if result_teacher_high_row != 0:
                         results.append(teacher_message_high)
-                        results.append(self.validate_levels(ws, count, (328-result_admin_row-result_teacher_high_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "ខ. គ្រូបង្រៀននៅមធ្យមសិក្សាទុតិយភូមិ"))
+                        results.append(self.validate_levels(ws, count, (328-result_admin_row-result_teacher_high_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y","AE", "ខ. គ្រូបង្រៀននៅមធ្យមសិក្សាទុតិយភូមិ"))
                         count = 330 - result_teacher_high_row - result_admin_row
                         teacher_message_low,result_teacher_low_row = self.check_row(ws, count, "A", "ឃ", 151, "គ. គ្រូបង្រៀននៅមធ្យមសិក្សាបឋមភូមិ")
                         if result_teacher_low_row != 0:
                             results.append(teacher_message_low)
-                            results.append(self.validate_levels(ws, count, (479-result_admin_row-result_teacher_high_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "គ. គ្រូបង្រៀននៅមធ្យមសិក្សាបឋមភូមិ"))
+                            results.append(self.validate_levels(ws, count, (479-result_admin_row-result_teacher_high_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y","AE", "គ. គ្រូបង្រៀននៅមធ្យមសិក្សាបឋមភូមិ"))
                             count = 481 - result_teacher_low_row - result_teacher_high_row - result_admin_row
                             contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 41, "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា")
                             if contract_message:
                                 results.append(contract_message)
-                            results.append(self.validate_levels(ws, count, (520-result_admin_row-result_teacher_high_row-result_teacher_low_row-result_contract_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា"))
+                            results.append(self.validate_levels(ws, count, (520-result_admin_row-result_teacher_high_row-result_teacher_low_row-result_contract_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y","AE", "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា"))
                         else:
-                            results.append(self.validate_levels(ws, count, (479-result_admin_row-result_teacher_high_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "គ. គ្រូបង្រៀននៅមធ្យមសិក្សាបឋមភូមិ"))
+                            results.append(self.validate_levels(ws, count, (479-result_admin_row-result_teacher_high_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y","AE", "គ. គ្រូបង្រៀននៅមធ្យមសិក្សាបឋមភូមិ"))
                             count = 481 - result_teacher_high_row - result_admin_row - result_teacher_low_row
                             contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 41, "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា")
                             if contract_message:
                                 results.append(contract_message)
-                            results.append(self.validate_levels(ws, count, (520-result_admin_row-result_teacher_high_row-result_teacher_low_row-result_contract_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា"))
+                            results.append(self.validate_levels(ws, count, (520-result_admin_row-result_teacher_high_row-result_teacher_low_row-result_contract_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y","AE", "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា"))
                     else:
-                        results.append(self.validate_levels(ws, count, (328-result_admin_row-result_teacher_high_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "ខ. គ្រូបង្រៀននៅមធ្យមសិក្សាទុតិយភូមិ"))
+                        results.append(self.validate_levels(ws, count, (328-result_admin_row-result_teacher_high_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y","AE", "ខ. គ្រូបង្រៀននៅមធ្យមសិក្សាទុតិយភូមិ"))
                         count = 330 - result_teacher_high_row - result_admin_row
                         teacher_message_low,result_teacher_low_row = self.check_row(ws, count, "A", "ឃ", 151, "គ. គ្រូបង្រៀននៅមធ្យមសិក្សាបឋមភូមិ")
                         if result_teacher_low_row != 0:
                             results.append(teacher_message_low)
-                            results.append(self.validate_levels(ws, count, (479-result_admin_row-result_teacher_high_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "គ. គ្រូបង្រៀននៅមធ្យមសិក្សាបឋមភូមិ"))
+                            results.append(self.validate_levels(ws, count, (479-result_admin_row-result_teacher_high_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y","AE", "គ. គ្រូបង្រៀននៅមធ្យមសិក្សាបឋមភូមិ"))
                             count = 481 - result_teacher_low_row - result_teacher_high_row - result_admin_row
                             contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 41, "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា")
                             if contract_message:
                                 results.append(contract_message)
-                            results.append(self.validate_levels(ws, count, (520-result_admin_row-result_teacher_high_row-result_teacher_low_row-result_contract_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា"))
+                            results.append(self.validate_levels(ws, count, (520-result_admin_row-result_teacher_high_row-result_teacher_low_row-result_contract_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y","AE", "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា"))
                         else:
-                            results.append(self.validate_levels(ws, count, (479-result_admin_row-result_teacher_high_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "គ. គ្រូបង្រៀននៅមធ្យមសិក្សាបឋមភូមិ"))
+                            results.append(self.validate_levels(ws, count, (479-result_admin_row-result_teacher_high_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y","AE", "គ. គ្រូបង្រៀននៅមធ្យមសិក្សាបឋមភូមិ"))
                             count = 481 - result_teacher_high_row - result_admin_row - result_teacher_low_row
                             contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 41, "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា")
                             if contract_message:
                                 results.append(contract_message)
-                            results.append(self.validate_levels(ws, count, (520-result_admin_row-result_teacher_high_row-result_teacher_low_row-result_contract_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y", "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា"))
+                            results.append(self.validate_levels(ws, count, (520-result_admin_row-result_teacher_high_row-result_teacher_low_row-result_contract_row), "M", "P", "AC", "I", "J", "K", "L", "Q", "T", "V", "W", "Y","AE", "ឃ. គ្រូខ្ចី មន្ត្រីជាប់កិច្ចសន្យា និងគ្រូជាប់កិច្ចសន្យា"))
                 
                 ### Update Cell That
 
