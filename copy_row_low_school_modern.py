@@ -153,6 +153,16 @@ class ExcelConsolidatorApp:
                                         blog_data["AdditionalInfo"] = "ចំណុចគ្រូខ្ចី និងនឹងកិច្ចសន្យា"
                                     consolidated_data.append(blog_data)
                                     
+                                    # Add the text to the right of all records in the third blog
+                                    if start_row == 302 and end_row == 351:
+                                        blog_data["AdditionalInfo"] = "បំណែងចែកនៅកន្លែងបង្រៀន"
+                                    consolidated_data.append(blog_data)
+                                    
+                                    # Add the text to the right of all records in the third blog
+                                    if start_row == 302 and end_row == 351:
+                                        blog_data["AdditionalInfo"] = "ចំណុចគ្រូខ្ចី និងនឹងកិច្ចសន្យា"
+                                    consolidated_data.append(blog_data)
+                                    
                         processed_sheets += 1
                         self.message_queue.put(("progress", f"Processed {processed_sheets}/{total_sheets} sheets"))
                         
