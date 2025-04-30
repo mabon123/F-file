@@ -150,6 +150,31 @@ class ExcelConsolidatorApp:
                                     blog_data["school"] = school
                                     consolidated_data.append(blog_data)
                                     
+                                    # Add the text to the right of all records in the third blog
+                                    if start_row == 58 and end_row == 177:
+                                        blog_data["AdditionalInfo"] = "បំណែងចែកនៅ ទីចាត់ការ"
+                                    consolidated_data.append(blog_data)
+                                    
+                                    # Add the text to the right of all records in the third blog
+                                    if start_row == 179 and end_row == 328:
+                                        blog_data["AdditionalInfo"] = "បំណែងចែកនៅ 10 - 12"
+                                    consolidated_data.append(blog_data)
+                                    
+                                    # Add the text to the right of all records in the third blog
+                                    if start_row == 179 and end_row == 328:
+                                        blog_data["AdditionalInfo"] = "បំណែងចែកនៅ 10 - 12"
+                                    consolidated_data.append(blog_data)
+                                    
+                                    # Add the text to the right of all records in the third blog
+                                    if start_row == 330 and end_row == 479:
+                                        blog_data["AdditionalInfo"] = "បំណែងចែកនៅ 7 - 9"
+                                    consolidated_data.append(blog_data)
+                                    
+                                    # Add the text to the right of all records in the third blog
+                                    if start_row == 481 and end_row == 520:
+                                        blog_data["AdditionalInfo"] = "ចំណុចគ្រូខ្ចី និងនឹងកិច្ចសន្យា"
+                                    consolidated_data.append(blog_data)
+                                    
                         processed_sheets += 1
                         self.message_queue.put(("progress", f"Processed {processed_sheets}/{total_sheets} sheets"))
                         

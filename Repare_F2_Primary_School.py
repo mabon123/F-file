@@ -119,7 +119,7 @@ class ExcelEditor:
                 return f"**សូមបញ្ចូលថ្នាក់រៀនអោយបានត្រឹមត្រូវ: គ្មានទិន្នន័យថ្នាក់រៀន ក្នុង {note}", grade_value,student_value
         return None, 0, 0
             
-    def validate_levels(self, wss, start_row, end_row, level_col, salary_col, certificate_col, day_col, month_col, year_col, gender_col, position_col, grade_col_1, student_col_1, grade_col_2, student_col_2,grade_col_3, student_col_3,grade_col_4, student_col_4, subject_1_col,add_teach_col, name_blog_row):
+    def validate_levels(self, wss, start_row, end_row, level_col, salary_col, certificate_col, day_col, month_col, year_col, gender_col, position_col, grade_col_1, student_col_1, grade_col_2, student_col_2,grade_col_3, student_col_3,grade_col_4, student_col_4, subject_1_col,add_teach_col,major_certification_col, name_blog_row):
         """
         Validate that values in level_col (e.g., 'M') belong to level_salary_a
         and their corresponding values in salary_col (e.g., 'P') exist in the level's set.
@@ -275,6 +275,8 @@ class ExcelEditor:
             subject_1_value = ws[f"{subject_1_col}{row_num}"].value
             #add teacher value
             add_teach_value = ws[f"{add_teach_col}{row_num}"].value
+            #majoe certification value
+            major_certification_value = ws[f"{major_certification_col}{row_num}"].value
             #comment message
             results = []
             # Check Level of Teacher
@@ -307,6 +309,11 @@ class ExcelEditor:
                 if certificate_value not in certificate:
                     results.append(f"**បញ្ចូលសញ្ញាបត្រពុំត្រឹមត្រូវ {certificate_value} ក្នុង {name_blog_row}")
                     ws[f"{certificate_col}{row_num}"].fill = red_fill  # Highlight certificate cell in red
+                    ws[f"{major_certification_col}{row_num}"].fill = red_fill
+                elif certificate_value == "បរិញ្ញាបត្រ" or certificate_value == "អនុបណ្ឌិត" or certificate_value == "បណ្ឌិត":
+                    if  major_certification_value is None:
+                        results.append(f"* សូមបំពេញឯកទេសនៃសញ្ញាបត្រ {certificate_value} ក្នុង {name_blog_row}")
+                        ws[f"{major_certification_col}{row_num}"].fill = red_fill
 
                 # Try convert and check date of birth
                 try:
@@ -418,24 +425,387 @@ class ExcelEditor:
             flattened_entries = [item for sublist in invalid_entries for item in sublist]
             return f"********ការផ្ទៀតផ្ទាត់នៅក្នុងបំណែងចែកភារកិច្ចមានបញ្ហា********** '{ws}':\n" + "\n".join(map(str, flattened_entries))
     
-    def update_cell(self, wss, cell, value):
-        """Update a specific cell with a new value."""
-        update_check = []
-        ws = wss
-        ws[cell] = f"{value}"
+    # def update_cell(self, wss, cell, value):
+    #     """Update a specific cell with a new value."""
+    #     update_check = []
+    #     ws = wss
+    #     ws[cell] = f"{value}"
 
-        if update_check:
-            return f"**Sheet រកពុំឃើញ '{ws}':\n" + "\n".join(update_check)
+    #     if update_check:
+    #         return f"**Sheet រកពុំឃើញ '{ws}':\n" + "\n".join(update_check)
+        
+    def update_cell(self, wss, cell, value):
+        """
+        Update a specific cell with a new value.
+        
+        Args:
+            wss: Worksheet object
+            cell: Cell reference (e.g., 'A1')
+            value: Value to set
+            
+        Returns:
+            str: Success or error message
+        """
+        try:
+            # Validate worksheet
+            if not wss:
+                return f"**Sheet រកពុំឃើញ"
+            
+            # Validate cell reference
+            try:
+                wss[cell]
+            except (ValueError, KeyError):
+                return f"**Cell reference មិនត្រឹមត្រូវ: {cell}"
+                
+            # Try to update the cell
+            try:
+                wss[cell] = value
+                return None  # Success, no error message
+            except Exception as e:
+                return f"**មិនអាចធ្វើបច្ចុប្បន្នភាពគោលដៅបានទេ {cell}: {str(e)}"
+                
+        except Exception as e:
+            return f"**កំហុសក្នុងការធ្វើបច្ចុប្បន្នភាព: {str(e)}"
+
+    # def process_sheets(self):
+    #     """Process all sheets starting with 'S' 
+    #     and within the numeric range."""
+        
+    #     cell_edit = {
+    #         "AW12": '=COUNTIF(X50:X303,"<=40") + COUNTIF(AA50:AA325,"<=40") + COUNTIF(AD50:AD324,"<=40") + COUNTIF(AG50:AG351,"<=40")',
+    #         "AW14": '=COUNTIF(X50:X325,">=50") + COUNTIF(AA50:AA325,">=50") + COUNTIF(AD50:AD325,">=50") + COUNTIF(AG50:AG303,">=50")',
+    #         "W41": '=IF(OR(AK3="", AK3="ធម្មតា"), 0, V19 - (BY17 + BY18))',
+    #         "W42": '=IF(AK3="លំបាក", (V19 - (BY17 + BY18)) * 80000, IF(AK3="ដាច់ស្រយាលប្រភេទ១", (V19 - (BY17 + BY18)) * 100000, IF(AK3="ដាច់ស្រយាលប្រភេទ២", (V19 - (BY17 + BY18)) * 120000, IF(AK3="ធម្មតា", (V19 - (BY17 + BY18)) * 0, 0))))'
+    #     }
+
+    #     results = []
+    #     for sheet in self.workbook.sheetnames:
+    #         if sheet.startswith('S') and sheet[1:].isdigit():
+                
+    #             results.append(f"ដំណើរការផ្ទៀងផ្ទាត់នៅក្នុង: {sheet}")
+    #             ws = self.workbook[sheet]
+                
+    #             # Check for if excel has data
+    #             count = 0
+    #             for i in range(50, 351):
+    #                 cell_value = ws.cell(row=i, column=11).value
+    #                 if cell_value is not None:
+    #                     count += 1
+    #                     break
+                    
+    #             if count > 0:
+                
+    #                 error_cells = self.check_formula_errors(ws)
+    #                 if isinstance(error_cells, str):  # If it's an error message
+    #                     results.append(error_cells)
+    #                 elif error_cells:  # If there are error cells
+    #                     results.append("\nរកឃើញកំហុសរូបមន្តក្នុង:")
+    #                     for error in error_cells:
+    #                         results.append(error)
+    #                 # Check rows for different categories
+    #                 count = 50
+    #                 admin_message = None
+    #                 admin_message,result_admin_row = self.check_row(ws, count, "A", "ខ", 101, "ក.បុគ្គលិកទីចាត់ការ")
+    #                 ## Check Admin Row
+    #                 if result_admin_row > 0:
+    #                     results.append(admin_message)
+    #                     results.append(self.validate_levels(ws, count, (149-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "ក.បុគ្គលិកទីចាត់ការ"))
+    #                     count =151-result_admin_row
+    #                     teacher_message,result_teacher_row = self.check_row(ws, count, "A", "គ", 151, "ខ. គ្រូបង្រៀនបឋមសិក្សា")
+                        
+    #                     ## Check Teacher Row
+    #                     if result_teacher_row > 0:
+    #                         results.append(teacher_message)
+    #                         results.append(self.validate_levels(ws, count, (300-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
+    #                         count = 302 - result_teacher_row - result_admin_row
+    #                         contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 51, "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...")
+    #                         ## Check Contract Row
+    #                         if contract_message:
+    #                             results.append(contract_message)
+    #                         results.append(self.validate_levels(ws, count, (351-result_admin_row-result_teacher_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
+                                
+    #                     elif result_teacher_row < 0:
+    #                         results.append(teacher_message)
+    #                         results.append(self.validate_levels(ws, count, (300-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
+    #                         count = 302 + abs(result_teacher_row) - result_admin_row
+    #                         contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 51, "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...")
+    #                         ## Check Contract Row
+    #                         if contract_message:
+    #                             results.append(contract_message)
+    #                         results.append(self.validate_levels(ws, count, (351-result_admin_row-result_teacher_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
+                                
+    #                     else:
+    #                         results.append(self.validate_levels(ws, count, (300-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
+    #                         count = 302 - result_admin_row
+    #                         contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 51, "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...")
+    #                         ## Check Contract Row
+    #                         if contract_message:
+    #                             results.append(contract_message)
+    #                         results.append(self.validate_levels(ws, count, (351-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
+                            
+    #                 elif result_admin_row < 0:
+    #                     results.append(admin_message)
+    #                     results.append(self.validate_levels(ws, count, (149-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "ក.បុគ្គលិកទីចាត់ការ"))
+    #                     count = 151 + abs(result_admin_row)
+    #                     teacher_message,result_teacher_row = self.check_row(ws, count, "A", "គ", 151, "ខ. គ្រូបង្រៀនបឋមសិក្សា")
+    #                     ## Check Teacher Row
+    #                     if result_teacher_row > 0:
+    #                         results.append(teacher_message)
+    #                         results.append(self.validate_levels(ws, count, (300-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
+    #                         count = 302 - result_teacher_row + abs(result_admin_row)
+    #                         contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 51, "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...")
+    #                         ## Check Contract Row
+    #                         if contract_message:
+    #                             results.append(contract_message)
+    #                         results.append(self.validate_levels(ws, count, (351-result_admin_row-result_teacher_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
+                                
+    #                     elif result_teacher_row < 0:
+    #                         results.append(teacher_message)
+    #                         results.append(self.validate_levels(ws, count, (300-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
+    #                         count = 302 + abs(result_teacher_row) + abs(result_admin_row)
+    #                         contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 51, "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...")
+    #                         ## Check Contract Row
+    #                         if contract_message:
+    #                             results.append(contract_message)
+    #                         results.append(self.validate_levels(ws, count, (351-result_admin_row-result_teacher_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
+                                
+    #                     else:
+    #                         results.append(self.validate_levels(ws, count, (300-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
+    #                         count = 302 + result_admin_row
+    #                         contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 51, "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...")
+    #                         ## Check Contract Row
+    #                         if contract_message:
+    #                             results.append(contract_message)
+    #                         results.append(self.validate_levels(ws, count, (351-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
+                            
+    #                 else:
+    #                     results.append(self.validate_levels(ws, count, 149, "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "ក.បុគ្គលិកទីចាត់ការ"))
+    #                     count = 151
+    #                     teacher_message,result_teacher_row = self.check_row(ws, count, "A", "គ", 151, "ខ. គ្រូបង្រៀនបឋមសិក្សា")
+    #                     ## Check Teacher Row
+    #                     if result_teacher_row > 0:
+    #                         results.append(teacher_message)
+    #                         results.append(self.validate_levels(ws, count, 300, "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
+    #                         count = 302 - result_teacher_row
+    #                         contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 51, "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...")
+    #                         ## Check Contract Row
+    #                         if contract_message:
+    #                             results.append(contract_message)
+    #                         results.append(self.validate_levels(ws, count, (351-result_teacher_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
+                                
+    #                     elif result_teacher_row < 0:
+    #                         count = 302 + abs(result_teacher_row)
+    #                         contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 51, "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...")
+    #                         ## Check Contract Row
+    #                         if contract_message:
+    #                             results.append(contract_message)
+    #                         results.append(self.validate_levels(ws, count, (351-result_teacher_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
+    #                     else:
+    #                         results.append(self.validate_levels(ws, count, 300, "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
+    #                         count = 302
+    #                         contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 51, "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...")
+    #                         ## Check Contract Row
+    #                         if contract_message:
+    #                             results.append(contract_message)
+    #                         results.append(self.validate_levels(ws, count, 351, "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
+    #                 # Update the cell with the new value
+
+    #             else:
+    #                 results.append(f"គ្មានទិន្នន័យនៅក្នុង: {sheet}")
+                
+    #                 for Key in cell_edit.keys():
+    #                     for result in [
+    #                         self.update_cell(ws, Key, cell_edit[Key])
+    #                     ]:
+    #                         if result:  # Only append non-None results
+    #                             results.append(result)
+                
+    #         else:
+    #             results.append(f"មិនមែនជា Sheet សាលារំលង: {sheet}")
+
+    #     # Filter out None values before joining
+    #     return "\n".join(filter(None, results))
+
+    # def process_sheets(self):
+    #     """Process all sheets starting with 'S' 
+    #     and within the numeric range."""
+        
+    #     cell_edit = {
+    #         "AW12": '=COUNTIF(X50:X303,"<=40") + COUNTIF(AA50:AA325,"<=40") + COUNTIF(AD50:AD324,"<=40") + COUNTIF(AG50:AG351,"<=40")',
+    #         "AW14": '=COUNTIF(X50:X325,">=50") + COUNTIF(AA50:AA325,">=50") + COUNTIF(AD50:AD325,">=50") + COUNTIF(AG50:AG303,">=50")',
+    #         "W41": '=IF(OR(AK3="", AK3="ធម្មតា"), 0, V19 - (BY17 + BY18))',
+    #         "W42": '=IF(AK3="លំបាក", (V19 - (BY17 + BY18)) * 80000, IF(AK3="ដាច់ស្រយាលប្រភេទ១", (V19 - (BY17 + BY18)) * 100000, IF(AK3="ដាច់ស្រយាលប្រភេទ២", (V19 - (BY17 + BY18)) * 120000, IF(AK3="ធម្មតា", (V19 - (BY17 + BY18)) * 0, 0))))',
+    #         "AP4":'=COUNTIFS($S$302:$S$351,AR4,$J$302:$J$351,$AP$3,$K$302:$K$351,"កិច្ចសន្យា")',
+    #         "AP5":'=COUNTIFS($S$302:$S$351,AR5,$J$302:$J$351,$AP$3,$K$302:$K$351,"កិច្ចសន្យា")',
+    #         "AP6":'=COUNTIFS($S$302:$S$351,AR6,$J$302:$J$351,$AP$3,$K$302:$K$351,"កិច្ចសន្យា")',
+    #         "AP7":'=COUNTIFS($S$302:$S$351,AR7,$J$302:$J$351,$AP$3,$K$302:$K$351,"កិច្ចសន្យា")',
+    #         "AP8":'=COUNTIFS($S$302:$S$351,AR8,$J$302:$J$351,$AP$3,$K$302:$K$351,"កិច្ចសន្យា")',
+    #         "AP9":'=COUNTIFS($S$302:$S$351,AR9,$J$302:$J$351,$AP$3,$K$302:$K$351,"កិច្ចសន្យា")'
+    #     }
+
+    #     results = []
+    #     for sheet in self.workbook.sheetnames:
+    #         if sheet.startswith('S') and sheet[1:].isdigit():
+                
+    #             results.append(f"ដំណើរការផ្ទៀងផ្ទាត់នៅក្នុង: {sheet}")
+    #             ws = self.workbook[sheet]
+                
+    #             # Check for if excel has data
+    #             count = 0
+    #             for i in range(50, 351):
+    #                 cell_value = ws.cell(row=i, column=11).value
+    #                 if cell_value is not None:
+    #                     count += 1
+    #                     break
+                    
+    #             if count > 0:
+                
+    #                 error_cells = self.check_formula_errors(ws)
+    #                 if isinstance(error_cells, str):  # If it's an error message
+    #                     results.append(error_cells)
+    #                 elif error_cells:  # If there are error cells
+    #                     results.append("\nរកឃើញកំហុសរូបមន្តក្នុង:")
+    #                     for error in error_cells:
+    #                         results.append(error)
+    #                 # Check rows for different categories
+    #                 count = 50
+    #                 admin_message = None
+    #                 admin_message,result_admin_row = self.check_row(ws, count, "A", "ខ", 101, "ក.បុគ្គលិកទីចាត់ការ")
+    #                 ## Check Admin Row
+    #                 if result_admin_row > 0:
+    #                     results.append(admin_message)
+    #                     results.append(self.validate_levels(ws, count, (149-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "ក.បុគ្គលិកទីចាត់ការ"))
+    #                     count =151-result_admin_row
+    #                     teacher_message,result_teacher_row = self.check_row(ws, count, "A", "គ", 151, "ខ. គ្រូបង្រៀនបឋមសិក្សា")
+                        
+    #                     ## Check Teacher Row
+    #                     if result_teacher_row > 0:
+    #                         results.append(teacher_message)
+    #                         results.append(self.validate_levels(ws, count, (300-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
+    #                         count = 302 - result_teacher_row - result_admin_row
+    #                         contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 51, "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...")
+    #                         ## Check Contract Row
+    #                         if contract_message:
+    #                             results.append(contract_message)
+    #                         results.append(self.validate_levels(ws, count, (351-result_admin_row-result_teacher_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
+                                
+    #                     elif result_teacher_row < 0:
+    #                         results.append(teacher_message)
+    #                         results.append(self.validate_levels(ws, count, (300-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
+    #                         count = 302 + abs(result_teacher_row) - result_admin_row
+    #                         contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 51, "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...")
+    #                         ## Check Contract Row
+    #                         if contract_message:
+    #                             results.append(contract_message)
+    #                         results.append(self.validate_levels(ws, count, (351-result_admin_row-result_teacher_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
+                                
+    #                     else:
+    #                         results.append(self.validate_levels(ws, count, (300-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
+    #                         count = 302 - result_admin_row
+    #                         contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 51, "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...")
+    #                         ## Check Contract Row
+    #                         if contract_message:
+    #                             results.append(contract_message)
+    #                         results.append(self.validate_levels(ws, count, (351-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
+                            
+    #                 elif result_admin_row < 0:
+    #                     results.append(admin_message)
+    #                     results.append(self.validate_levels(ws, count, (149-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "ក.បុគ្គលិកទីចាត់ការ"))
+    #                     count = 151 + abs(result_admin_row)
+    #                     teacher_message,result_teacher_row = self.check_row(ws, count, "A", "គ", 151, "ខ. គ្រូបង្រៀនបឋមសិក្សា")
+    #                     ## Check Teacher Row
+    #                     if result_teacher_row > 0:
+    #                         results.append(teacher_message)
+    #                         results.append(self.validate_levels(ws, count, (300-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
+    #                         count = 302 - result_teacher_row + abs(result_admin_row)
+    #                         contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 51, "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...")
+    #                         ## Check Contract Row
+    #                         if contract_message:
+    #                             results.append(contract_message)
+    #                         results.append(self.validate_levels(ws, count, (351-result_admin_row-result_teacher_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
+                                
+    #                     elif result_teacher_row < 0:
+    #                         results.append(teacher_message)
+    #                         results.append(self.validate_levels(ws, count, (300-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
+    #                         count = 302 + abs(result_teacher_row) + abs(result_admin_row)
+    #                         contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 51, "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...")
+    #                         ## Check Contract Row
+    #                         if contract_message:
+    #                             results.append(contract_message)
+    #                         results.append(self.validate_levels(ws, count, (351-result_admin_row-result_teacher_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
+                                
+    #                     else:
+    #                         results.append(self.validate_levels(ws, count, (300-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
+    #                         count = 302 + result_admin_row
+    #                         contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 51, "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...")
+    #                         ## Check Contract Row
+    #                         if contract_message:
+    #                             results.append(contract_message)
+    #                         results.append(self.validate_levels(ws, count, (351-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
+                            
+    #                 else:
+    #                     results.append(self.validate_levels(ws, count, 149, "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "ក.បុគ្គលិកទីចាត់ការ"))
+    #                     count = 151
+    #                     teacher_message,result_teacher_row = self.check_row(ws, count, "A", "គ", 151, "ខ. គ្រូបង្រៀនបឋមសិក្សា")
+    #                     ## Check Teacher Row
+    #                     if result_teacher_row > 0:
+    #                         results.append(teacher_message)
+    #                         results.append(self.validate_levels(ws, count, 300, "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
+    #                         count = 302 - result_teacher_row
+    #                         contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 51, "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...")
+    #                         ## Check Contract Row
+    #                         if contract_message:
+    #                             results.append(contract_message)
+    #                         results.append(self.validate_levels(ws, count, (351-result_teacher_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
+                                
+    #                     elif result_teacher_row < 0:
+    #                         count = 302 + abs(result_teacher_row)
+    #                         contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 51, "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...")
+    #                         ## Check Contract Row
+    #                         if contract_message:
+    #                             results.append(contract_message)
+    #                         results.append(self.validate_levels(ws, count, (351-result_teacher_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
+    #                     else:
+    #                         results.append(self.validate_levels(ws, count, 300, "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
+    #                         count = 302
+    #                         contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 51, "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...")
+    #                         ## Check Contract Row
+    #                         if contract_message:
+    #                             results.append(contract_message)
+    #                         results.append(self.validate_levels(ws, count, 351, "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
+    #                 # Update the cell with the new value
+
+    #             else:
+    #                 results.append(f"គ្មានទិន្នន័យនៅក្នុង: {sheet}")
+                
+    #                 for Key in cell_edit.keys():
+    #                     for result in [
+    #                         self.update_cell(ws, Key, cell_edit[Key])
+    #                     ]:
+    #                         if result:  # Only append non-None results
+    #                             results.append(result)
+                
+    #         else:
+    #             results.append(f"មិនមែនជា Sheet សាលារំលង: {sheet}")
+
+    #     # Filter out None values before joining
+    #     return "\n".join(filter(None, results))
 
     def process_sheets(self):
         """Process all sheets starting with 'S' 
         and within the numeric range."""
         
         cell_edit = {
-            "AW12": '=COUNTIF(X50:X303,"<=40")+COUNTIF(AA50:AA303,"<=40")+COUNTIF(AD50:AD303,"<=40")+COUNTIF(AG50:AG303,"<=40")',
-            "AW14": '=COUNTIF(X50:X303,">=50")+COUNTIF(AA50:AA303,">=50")+COUNTIF(AD50:AD303,">=50")+COUNTIF(AG50:AG303,">=50")',
-            "W41": '=IF(OR(AK3="",AK3="ធម្មតា"),0,(V19-(BY17+BY18)))',
-            "W42": '=IF(AK3="លំបាក",(V19-(BY17+BY18))*80000,IF(AK3="ដាច់ស្រយាលប្រភេទ១",(V19-(BY17+BY18))*100000,IF(AK3="ដាច់ស្រយាលប្រភេទ២",(V19-(BY17+BY18))*120000,IF(AK3="ធម្មតា",(V19-(BY17+BY18))*0,0))))'
+            "AW12": '=COUNTIF(X50:X303,"<=40") + COUNTIF(AA50:AA325,"<=40") + COUNTIF(AD50:AD324,"<=40") + COUNTIF(AG50:AG351,"<=40")',
+            "AW14": '=COUNTIF(X50:X325,">=50") + COUNTIF(AA50:AA325,">=50") + COUNTIF(AD50:AD325,">=50") + COUNTIF(AG50:AG303,">=50")',
+            "W41": '=IF(OR(AK3="", AK3="ធម្មតា"), 0, V19 - (BY17 + BY18))',
+            "W42": '=IF(AK3="លំបាក", (V19 - (BY17 + BY18)) * 80000, IF(AK3="ដាច់ស្រយាលប្រភេទ១", (V19 - (BY17 + BY18)) * 100000, IF(AK3="ដាច់ស្រយាលប្រភេទ២", (V19 - (BY17 + BY18)) * 120000, IF(AK3="ធម្មតា", (V19 - (BY17 + BY18)) * 0, 0))))',
+            "AP4": '=COUNTIFS($S$302:$S$351,AR4,$J$302:$J$351,$AP$3,$K$302:$K$351,"កិច្ចសន្យា")',
+            "AP5": '=COUNTIFS($S$302:$S$351,AR5,$J$302:$J$351,$AP$3,$K$302:$K$351,"កិច្ចសន្យា")',
+            "AP6": '=COUNTIFS($S$302:$S$351,AR6,$J$302:$J$351,$AP$3,$K$302:$K$351,"កិច្ចសន្យា")',
+            "AP7": '=COUNTIFS($S$302:$S$351,AR7,$J$302:$J$351,$AP$3,$K$302:$K$351,"កិច្ចសន្យា")',
+            "AP8": '=COUNTIFS($S$302:$S$351,AR8,$J$302:$J$351,$AP$3,$K$302:$K$351,"កិច្ចសន្យា")',
+            "AP9": '=COUNTIFS($S$302:$S$351,AR9,$J$302:$J$351,$AP$3,$K$302:$K$351,"កិច្ចសន្យា")'
         }
 
         results = []
@@ -447,7 +817,7 @@ class ExcelEditor:
                 
                 # Check for if excel has data
                 count = 0
-                for i in range(50, 149):
+                for i in range(50, 351):
                     cell_value = ws.cell(row=i, column=11).value
                     if cell_value is not None:
                         count += 1
@@ -469,90 +839,89 @@ class ExcelEditor:
                     ## Check Admin Row
                     if result_admin_row > 0:
                         results.append(admin_message)
-                        results.append(self.validate_levels(ws, count, (149-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "ក.បុគ្គលិកទីចាត់ការ"))
+                        results.append(self.validate_levels(ws, count, (149-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "ក.បុគ្គលិកទីចាត់ការ"))
                         count =151-result_admin_row
                         teacher_message,result_teacher_row = self.check_row(ws, count, "A", "គ", 151, "ខ. គ្រូបង្រៀនបឋមសិក្សា")
                         
                         ## Check Teacher Row
                         if result_teacher_row > 0:
                             results.append(teacher_message)
-                            results.append(self.validate_levels(ws, count, (300-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
+                            results.append(self.validate_levels(ws, count, (300-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
                             count = 302 - result_teacher_row - result_admin_row
                             contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 51, "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...")
                             ## Check Contract Row
                             if contract_message:
                                 results.append(contract_message)
-                            results.append(self.validate_levels(ws, count, (351-result_admin_row-result_teacher_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
+                            results.append(self.validate_levels(ws, count, (351-result_admin_row-result_teacher_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
                                 
                         elif result_teacher_row < 0:
                             results.append(teacher_message)
-                            results.append(self.validate_levels(ws, count, (300-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
+                            results.append(self.validate_levels(ws, count, (300-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
                             count = 302 + abs(result_teacher_row) - result_admin_row
                             contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 51, "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...")
                             ## Check Contract Row
                             if contract_message:
                                 results.append(contract_message)
-                            results.append(self.validate_levels(ws, count, (351-result_admin_row-result_teacher_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
+                            results.append(self.validate_levels(ws, count, (351-result_admin_row-result_teacher_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
                                 
                         else:
-                            results.append(self.validate_levels(ws, count, (300-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
-                            count = 302-result_admin_row
+                            results.append(self.validate_levels(ws, count, (300-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
+                            count = 302 - result_admin_row
                             contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 51, "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...")
                             ## Check Contract Row
                             if contract_message:
                                 results.append(contract_message)
-                            results.append(self.validate_levels(ws, count, (351-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
-                                
+                            results.append(self.validate_levels(ws, count, (351-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
+                            
                     elif result_admin_row < 0:
                         results.append(admin_message)
-                        results.append(self.validate_levels(ws, count, (149-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "ក.បុគ្គលិកទីចាត់ការ"))
+                        results.append(self.validate_levels(ws, count, (149-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "ក.បុគ្គលិកទីចាត់ការ"))
                         count = 151 + abs(result_admin_row)
                         teacher_message,result_teacher_row = self.check_row(ws, count, "A", "គ", 151, "ខ. គ្រូបង្រៀនបឋមសិក្សា")
                         ## Check Teacher Row
                         if result_teacher_row > 0:
                             results.append(teacher_message)
-                            results.append(self.validate_levels(ws, count, (300-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
-                            count = 302 - result_teacher_row +abs(result_admin_row)
+                            results.append(self.validate_levels(ws, count, (300-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
+                            count = 302 - result_teacher_row + abs(result_admin_row)
                             contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 51, "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...")
                             ## Check Contract Row
                             if contract_message:
                                 results.append(contract_message)
-                            results.append(self.validate_levels(ws, count, (351-result_admin_row-result_teacher_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
+                            results.append(self.validate_levels(ws, count, (351-result_admin_row-result_teacher_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
                                 
                         elif result_teacher_row < 0:
                             results.append(teacher_message)
-                            results.append(self.validate_levels(ws, count, (300-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
+                            results.append(self.validate_levels(ws, count, (300-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
                             count = 302 + abs(result_teacher_row) + abs(result_admin_row)
                             contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 51, "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...")
                             ## Check Contract Row
                             if contract_message:
                                 results.append(contract_message)
-                            results.append(self.validate_levels(ws, count, (351-result_admin_row-result_teacher_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
+                            results.append(self.validate_levels(ws, count, (351-result_admin_row-result_teacher_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
                                 
                         else:
-                            
-                            results.append(self.validate_levels(ws, count, (300-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC","AD", "AF","AG","O","AL", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
-                            count = 302+result_admin_row
+                            results.append(self.validate_levels(ws, count, (300-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
+                            count = 302 + result_admin_row
                             contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 51, "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...")
                             ## Check Contract Row
                             if contract_message:
                                 results.append(contract_message)
-                            results.append(self.validate_levels(ws, count, (351-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
-                                
+                            results.append(self.validate_levels(ws, count, (351-result_admin_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
+                            
                     else:
-                        results.append(self.validate_levels(ws, count, 149, "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "ក.បុគ្គលិកទីចាត់ការ"))
+                        results.append(self.validate_levels(ws, count, 149, "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "ក.បុគ្គលិកទីចាត់ការ"))
                         count = 151
                         teacher_message,result_teacher_row = self.check_row(ws, count, "A", "គ", 151, "ខ. គ្រូបង្រៀនបឋមសិក្សា")
                         ## Check Teacher Row
                         if result_teacher_row > 0:
                             results.append(teacher_message)
-                            results.append(self.validate_levels(ws, count, 300, "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
+                            results.append(self.validate_levels(ws, count, 300, "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
                             count = 302 - result_teacher_row
                             contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 51, "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...")
                             ## Check Contract Row
                             if contract_message:
                                 results.append(contract_message)
-                            results.append(self.validate_levels(ws, count, (351-result_teacher_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
+                            results.append(self.validate_levels(ws, count, (351-result_teacher_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
                                 
                         elif result_teacher_row < 0:
                             count = 302 + abs(result_teacher_row)
@@ -560,35 +929,38 @@ class ExcelEditor:
                             ## Check Contract Row
                             if contract_message:
                                 results.append(contract_message)
-                            results.append(self.validate_levels(ws, count, (351-result_teacher_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
+                            results.append(self.validate_levels(ws, count, (351-result_teacher_row), "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
                         else:
-                            results.append(self.validate_levels(ws, count, 300, "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
+                            results.append(self.validate_levels(ws, count, 300, "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "ខ.បំណែងចែកភារកិច្ចគ្រូបង្រៀន"))
                             count = 302
                             contract_message, result_contract_row = self.check_row(ws, count, "A", "សរុប", 51, "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា...")
                             ## Check Contract Row
                             if contract_message:
                                 results.append(contract_message)
-                            results.append(self.validate_levels(ws, count, 351, "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
+                            results.append(self.validate_levels(ws, count, 351, "K", "L", "S", "G", "H", "I", "J", "M","W","X", "Z", "AA", "AC", "AD","AF","AG","O","AL","U", "គ.គ្រូបង្រៀនជាប់កិច្ចសន្យា..."))
                     # Update the cell with the new value
+
+                else:
+                    results.append(f"គ្មានទិន្នន័យនៅក្នុង: {sheet}")
+                
                     for Key in cell_edit.keys():
+                        print(f"Updating cell {Key} with value {cell_edit[Key]}")  # Debug print
                         for result in [
                             self.update_cell(ws, Key, cell_edit[Key])
                         ]:
                             if result:  # Only append non-None results
                                 results.append(result)
-                else:
-                    results.append(f"គ្មានទិន្នន័យនៅក្នុង: {sheet}")
                 
             else:
                 results.append(f"មិនមែនជា Sheet សាលារំលង: {sheet}")
 
         # Filter out None values before joining
         return "\n".join(filter(None, results))
-
     def save_workbook(self):
         """Save the workbook back to the file."""
         try:
             self.workbook.save(self.file_path)
+            self.workbook.close()
             return "កិច្ចការបានរក្សាទុករួចរាល់។"
         except Exception as e:
             return f"មានបញ្ហាក្នុងការរក្សារទុក ឬ Excel កំពុងបើក: {e}"
